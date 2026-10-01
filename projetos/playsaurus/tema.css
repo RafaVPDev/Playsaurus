@@ -1,0 +1,71 @@
+/**
+ * Playsaurus — identidade visual do portal de documentação
+ * ----------------------------------------------------------------------------
+ * Gerado a partir da cor #93E235. Só cor mora aqui: layout e componentes
+ * ficam em compartilhado/standalone/runtime.css, que consome estes tokens.
+ *
+ * Para mudar a identidade do produto, mexa nos valores abaixo — nenhum outro
+ * arquivo precisa saber.
+ */
+
+/* ============================================================
+   TEMA CLARO
+   ============================================================ */
+:root {
+  --doc-primary: hsl(87 75% 35%);
+  --doc-primary-hover: hsl(87 75% 28%);
+  --doc-navbar-bg: hsl(87 15% 12%);
+  --doc-sidebar-bg: hsl(87 20% 98%);
+  --doc-background: hsl(0 0% 100%);
+  --doc-surface: hsl(0 0% 100%);
+  --doc-surface-2: hsl(87 20% 96%);
+  --doc-border: hsl(87 15% 90%);
+  --doc-text: hsl(87 8% 12%);
+  --doc-text-muted: hsl(87 10% 45%);
+  --doc-success: hsl(145 80% 42%);
+  --doc-warning: hsl(36 100% 48%);
+  --doc-danger: hsl(356 95% 45%);
+
+  --doc-pre-bg: hsl(87 20% 97%);
+  --doc-menu-ativo-bg: hsl(87 60% 94%);
+  --doc-menu-hover-bg: hsl(87 40% 96%);
+  --doc-menu-ativo-cor: var(--doc-primary-hover);
+  --doc-navbar-link-hover: hsl(87 80% 65%);
+  --doc-footer-bg: var(--doc-navbar-bg);
+  --doc-scrollbar-thumb: hsl(87 45% 72%);
+  --doc-selection: hsl(87 75% 35% / 0.25);
+
+  /* --- Homepage --- */
+  --doc-hero-gradient: linear-gradient(135deg, hsl(87 15% 12%) 0%, hsl(87 75% 20%) 100%);
+  --doc-hero-btn-bg: hsl(87 75% 45%);
+  --doc-hero-btn-bg-hover: hsl(87 75% 52%);
+  --doc-hero-btn-text: hsl(87 60% 8%);
+
+}
+
+/* ============================================================
+   TEMA ESCURO
+   ============================================================ */
+[data-theme='dark'] {
+  --doc-primary: hsl(87 56% 58%);
+  --doc-primary-hover: hsl(87 56% 68%);
+  --doc-navbar-bg: hsl(87 16% 8%);
+  --doc-sidebar-bg: hsl(87 15% 12%);
+  --doc-background: hsl(87 15% 10%);
+  --doc-surface: hsl(87 15% 13%);
+  --doc-surface-2: hsl(87 18% 16%);
+  --doc-border: hsl(87 18% 22%);
+  --doc-text: hsl(87 20% 96%);
+  --doc-text-muted: hsl(87 15% 65%);
+  --doc-success: hsl(145 70% 48%);
+  --doc-warning: hsl(36 100% 55%);
+  --doc-danger: hsl(356 85% 60%);
+
+  --doc-pre-bg: hsl(87 18% 12%);
+  --doc-menu-ativo-bg: hsl(87 55% 16%);
+  --doc-menu-hover-bg: hsl(87 18% 16%);
+  --doc-menu-ativo-cor: hsl(87 56% 70%);
+  --doc-footer-bg: hsl(87 20% 6%);
+  --doc-scrollbar-thumb: hsl(87 45% 34%);
+
+}

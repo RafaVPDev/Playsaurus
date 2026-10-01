@@ -1,0 +1,65 @@
+# Preencher com ajuda de IA
+
+Os prompts abaixo são modelos. Dê sempre acesso ao código e aos documentos reais
+que a IA precisa analisar; não peça para inventar comportamento ausente.
+
+## Prompt 1 — mapear o produto
+
+```text
+Analise o projeto antes de escrever documentação.
+
+Quero um inventário factual de:
+- telas e rotas;
+- perfis/permissões;
+- fluxos principais;
+- integrações;
+- entidades e regras importantes;
+- erros e estados vazios relevantes.
+
+Não escreva a documentação final ainda. Aponte também o que não pôde ser
+confirmado pelo código.
+```
+
+## Prompt 2 — Arquitetura
+
+```text
+Usando apenas o que foi confirmado no projeto, escreva a documentação técnica em
+Markdown para a seção Arquitetura.
+
+Priorize visão geral, componentes, autenticação/autorização, dados, integrações,
+fluxos importantes e decisões técnicas. Use Mermaid somente quando esclarecer o
+fluxo. Não invente infraestrutura ou comportamento que não esteja no projeto.
+```
+
+## Prompt 3 — Usabilidade
+
+```text
+Escreva a documentação de Usabilidade em Markdown, organizada pelas tarefas reais
+do usuário.
+
+Para cada tarefa, explique objetivo, pré-requisitos quando existirem, passo a
+passo, resultado esperado e problemas comuns. Use linguagem de produto, não de
+implementação. Inclua referências a screenshots quando elas realmente ajudarem.
+```
+
+## Prompt 4 — Referência e FAQ
+
+```text
+Crie a seção Referência em Markdown com somente informações confirmadas no
+produto: glossário, perfis/permissões, regras e perguntas frequentes.
+
+Na página perguntas-frequentes.md, use ## para categorias e ### para perguntas.
+Use publico/faq_admin apenas quando houver diferença real entre usuários comuns e
+administradores.
+```
+
+## Prompt 5 — atualizar após uma mudança
+
+```text
+Compare a implementação atual com a documentação existente.
+
+Altere somente as páginas afetadas pela funcionalidade nova ou modificada.
+Preserve nomes de arquivo, links e estrutura quando ainda forem válidos. Remova
+instruções que ficaram falsas e acrescente apenas comportamento confirmado no
+código atual.
+```

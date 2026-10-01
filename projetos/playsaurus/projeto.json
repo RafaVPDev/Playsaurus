@@ -1,0 +1,58 @@
+{
+  "nome": "Playsaurus",
+  "tagline": "Documentação do Playsaurus",
+  "url": "http://127.0.0.1:4321",
+  "baseUrl": "/docs/",
+  "repositorio": {
+    "relativo": "",
+    "env": "PLAYSAURUS_REPO",
+    "destino": "public/docs"
+  },
+  "screenshots": {
+    "envBaseUrl": "PLAYSAURUS_BASE_URL",
+    "baseUrlPadrao": "http://localhost:8080",
+    "destino": "img/usabilidade/geradas"
+  },
+  "idiomas": {
+    "padrao": "pt-BR",
+    "exigirTraducoes": false,
+    "disponiveis": [
+      {
+        "locale": "pt-BR",
+        "appLocale": "pt-BR",
+        "htmlLang": "pt-BR",
+        "rotulo": "Português (Brasil)"
+      }
+    ]
+  },
+  "secoes": [
+    {
+      "id": "arquitetura",
+      "rotulo": "Arquitetura",
+      "tag": "Para desenvolvedores",
+      "descricao": "Documentação técnica: stack, banco de dados, autenticação, integrações e segurança.",
+      "publicar": false
+    },
+    {
+      "id": "usabilidade",
+      "rotulo": "Usabilidade",
+      "tag": "Para usuários",
+      "descricao": "Guias passo a passo para o dia a dia de quem usa o produto."
+    },
+    {
+      "id": "referencia",
+      "rotulo": "Referência",
+      "tag": "Consulta rápida",
+      "descricao": "Glossário, permissões e perguntas frequentes para tirar dúvidas rapidamente."
+    }
+  ],
+  "home": {
+    "titulo": "Documentação do Playsaurus",
+    "acaoPrincipal": {
+      "rotulo": "Ver Arquitetura",
+      "para": "/arquitetura"
+    }
+  },
+  "indiceAjuda": {},
+  "urlPublica": "http://127.0.0.1:4321"
+}

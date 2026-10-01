@@ -1,0 +1,3 @@
+# Arquivos .bat precisam de CRLF: com LF puro, o cmd.exe quebra em blocos
+# de várias linhas como `if (...)`.
+*.bat text eol=crlf

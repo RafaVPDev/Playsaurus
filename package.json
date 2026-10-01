@@ -1,0 +1,40 @@
+{
+  "name": "playsaurus",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Instalação compartilhada que gera a documentação de vários produtos",
+  "scripts": {
+    "painel": "node scripts/painel.mjs",
+    "start": "node scripts/start.mjs",
+    "build": "node scripts/build.mjs",
+    "serve": "node scripts/serve.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "videos": "node extras/video/videos.mjs",
+    "auditoria": "node extras/auditoria/scripts/auditoria.mjs",
+    "auditoria:completa": "node extras/auditoria/scripts/auditoria-completa.mjs",
+    "indice": "node scripts/gerar-indice-ajuda.mjs",
+    "pdf": "node scripts/exportar-pdf.mjs",
+    "publish": "node scripts/publicar.mjs",
+    "typecheck": "tsc",
+    "i18n:check": "node extras/i18n/i18n.mjs",
+    "i18n:init": "node extras/i18n/i18n.mjs --init",
+    "auditoria:funcional": "node extras/auditoria/scripts/auditoria-funcional.mjs",
+    "auditoria:seguranca": "node extras/auditoria/scripts/auditoria-seguranca.mjs",
+    "auditoria:robustez": "node extras/auditoria/scripts/auditoria-robustez.mjs",
+    "auditoria:performance": "node extras/auditoria/scripts/auditoria-performance.mjs"
+  },
+  "dependencies": {
+    "mermaid": "^11.16.0",
+    "pdf-lib": "^1.17.1",
+    "markdown-it": "^14.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.1.1",
+    "dotenv": "^17.4.2",
+    "typescript": "~6.0.2"
+  },
+  "engines": {
+    "node": ">=20.0"
+  }
+}

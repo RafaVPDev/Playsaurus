@@ -1,0 +1,228 @@
+/**
+ * Auditoria de robustez operacional Playwright — Fase 4.
+ *
+ * Simula refresh, sessão expirada, rede intermitente, repetição rápida de
+ * ações, anexos inválidos e OCR sem dados úteis. Os cenários são específicos
+ * do NasaMotor e usam o banco de teste.
+ *
+ * Uso:
+ *   npm run auditoria:robustez -- nasa-motor-web
+ */
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { BIN, RAIZ, idDoArgumento, encerrarComErro } from '../../../scripts/comum.mjs';
+
+const require = createRequire(import.meta.url);
+const { carregarProjetoAuditoria } = require('../projeto.cjs');
+const dotenv = require('dotenv');
+
+function alvoAuditoria(projeto) {
+  const envBaseUrl = projeto.auditoria?.envBaseUrl || projeto.screenshots?.envBaseUrl;
+  return (
+    (envBaseUrl && process.env[envBaseUrl]) ||
+    projeto.auditoria?.baseUrlPadrao ||
+    projeto.url ||
+    projeto.screenshots?.baseUrlPadrao ||
+    'http://localhost:8080'
+  );
+}
+
+function executarPlaywright(args, env) {
+  return new Promise((resolve, reject) => {
+    const filho = spawn(process.execPath, [BIN.playwright, ...args], {
+      cwd: RAIZ,
+      stdio: 'inherit',
+      env: { ...process.env, ...env },
+    });
+    filho.on('error', reject);
+    filho.on('close', (codigo) => resolve(codigo ?? 1));
+  });
+}
+
+function specsRecursivos(suites, acumulado = []) {
+  for (const suite of suites || []) {
+    for (const spec of suite.specs || []) acumulado.push(spec);
+    specsRecursivos(suite.suites, acumulado);
+  }
+  return acumulado;
+}
+
+function resultadoFinal(teste) {
+  const resultados = teste.results || [];
+  return resultados[resultados.length - 1] || {};
+}
+
+function limparErro(erro) {
+  const mensagem = erro?.message || erro?.value || String(erro || 'Falha sem mensagem.');
+  return mensagem.replace(/\u001b\[[0-9;]*m/g, '').replace(/\r/g, '').trim();
+}
+
+function gerarMarkdown(projeto, dados, codigo, caminhoHtml) {
+  const specs = specsRecursivos(dados.suites);
+  const linhas = [];
+  const falhas = [];
+  let ok = 0;
+  let falhou = 0;
+  let ignorado = 0;
+  let authOk = 0;
+  let authFalhou = 0;
+
+  for (const spec of specs) {
+    for (const teste of spec.tests || []) {
+      const projetoNome = teste.projectName || teste.projectId || '';
+      const final = resultadoFinal(teste);
+      const status = final.status || teste.status || 'unknown';
+      const ehAuth = String(projetoNome).startsWith('auth:');
+
+      if (ehAuth) {
+        if (status === 'passed') authOk += 1;
+        else if (status !== 'skipped') authFalhou += 1;
+        continue;
+      }
+
+      if (status === 'passed') ok += 1;
+      else if (status === 'skipped') ignorado += 1;
+      else {
+        falhou += 1;
+        const erros = (final.errors?.length ? final.errors : final.error ? [final.error] : [])
+          .map(limparErro)
+          .filter(Boolean);
+        falhas.push({
+          titulo: spec.title,
+          ficheiro: spec.file,
+          erros: erros.length ? erros : ['Falha sem mensagem detalhada.'],
+        });
+      }
+    }
+  }
+
+  const stats = dados.stats || {};
+  linhas.push(`# Auditoria de robustez operacional — ${projeto.nome}`);
+  linhas.push('');
+  linhas.push(`- **Projeto:** \`${projeto.id}\``);
+  linhas.push(`- **Alvo:** \`${alvoAuditoria(projeto)}\``);
+  linhas.push(`- **Executada em:** ${new Date().toLocaleString('pt-PT')}`);
+  linhas.push(`- **Resultado:** ${codigo === 0 && falhou === 0 ? 'OK' : 'Falhas encontradas'}`);
+  linhas.push(`- **Cenários de robustez:** ${ok} OK · ${falhou} falharam · ${ignorado} ignorados`);
+  linhas.push(`- **Sessões autenticadas:** ${authOk} OK · ${authFalhou} falharam`);
+  linhas.push('- **Modo:** falhas controladas de sessão/rede + escrita QA no banco de teste');
+  if (stats.duration) linhas.push(`- **Duração:** ${(stats.duration / 1000).toFixed(1)} s`);
+  linhas.push(`- **Relatório HTML:** \`${path.relative(RAIZ, caminhoHtml).split(path.sep).join('/')}\``);
+  linhas.push('');
+  linhas.push('## Cenários cobertos');
+  linhas.push('');
+  linhas.push('- refresh numa rota autenticada sem perder a sessão;');
+  linhas.push('- cache de perfil obsoleto com sessão Supabase removida, obrigando novo login;');
+  linhas.push('- recuperação automática após uma falha transitória ao carregar a lista de despesas;');
+  linhas.push('- falha de rede ao guardar rascunho, seguida de nova tentativa sem duplicar o registo;');
+  linhas.push('- duplo clique rápido em “Guardar rascunho” sem criar duas despesas;');
+  linhas.push('- refresh e acesso direto por URL ao detalhe de um rascunho já persistido;');
+  linhas.push('- bloqueio local de anexo com tipo inválido e de ficheiro acima de 20 MB;');
+  linhas.push('- OCR de imagem sem dados fiscais tratado sem crash da página;');
+  linhas.push('- acesso direto e refresh de rota proibida continuam a respeitar o perfil;');
+  linhas.push('');
+  linhas.push('## Falhas');
+  linhas.push('');
+  if (!falhas.length) {
+    linhas.push('Nenhuma falha encontrada.');
+  } else {
+    falhas.forEach((falha, indice) => {
+      linhas.push(`### ${indice + 1}. ${falha.titulo}`);
+      linhas.push('');
+      if (falha.ficheiro) linhas.push(`Ficheiro: \`${falha.ficheiro}\``);
+      linhas.push('');
+      for (const erro of falha.erros) {
+        linhas.push('```text');
+        linhas.push(erro.slice(0, 10_000));
+        linhas.push('```');
+      }
+      linhas.push('');
+    });
+  }
+  linhas.push('## Nota sobre os dados de QA');
+  linhas.push('');
+  linhas.push('Os rascunhos criados nesta fase usam o prefixo `QA Playwright Robustez`. O banco configurado para o NasaMotor é de teste; alguns rascunhos permanecem no histórico para permitir confirmar idempotência e recuperação após refresh.');
+  linhas.push('');
+
+  return `${linhas.join('\n')}\n`;
+}
+
+try {
+  const argv = process.argv.slice(2);
+  const id = idDoArgumento(argv);
+  const projeto = carregarProjetoAuditoria(id);
+  const indiceId = argv.indexOf(id);
+  const extras = (indiceId >= 0 ? argv.slice(indiceId + 1) : argv).filter((arg) => arg !== id);
+
+  if (!existsSync(projeto.arquivoEnv)) {
+    throw new Error(`Falta projetos/${id}/.env com as credenciais usadas pela auditoria de robustez.`);
+  }
+  dotenv.config({ path: projeto.arquivoEnv });
+
+  if (id !== 'nasa-motor-web') {
+    throw new Error(
+      'A Fase 4 de robustez atual está configurada especificamente para o NasaMotor. ' +
+        'Crie cenários próprios antes de a ativar noutro produto.',
+    );
+  }
+
+  const perfil = projeto.auditoria.perfis.find((item) => item.id === 'colaborador');
+  if (!perfil) throw new Error('O perfil colaborador não está configurado em auditoria.json.');
+  const credenciaisAusentes = [perfil.envEmail, perfil.envPassword].filter(
+    (nome) => !String(process.env[nome] || '').trim(),
+  );
+  if (credenciaisAusentes.length) {
+    throw new Error(`Faltam credenciais do colaborador: ${credenciaisAusentes.join(', ')}`);
+  }
+
+  const config = path.join(RAIZ, 'extras', 'auditoria', 'config', 'playwright.audit.resilience.config.ts');
+  const dirEtapa = projeto.dirAuditoriaEtapa('robustez');
+  const dirResultados = path.join(dirEtapa, 'test-results');
+  const htmlOutput = path.join(dirEtapa, 'report');
+  const dirResumo = path.join(projeto.dirRelatorioAuditoria, 'robustez');
+  const jsonOutput = path.join(dirResultados, 'resultado.json');
+  const markdownOutput = path.join(dirResumo, 'relatorio.md');
+
+  if (!existsSync(config)) {
+    throw new Error(`Falta ${path.basename(config)} na raiz do Playsaurus.`);
+  }
+
+  rmSync(dirResultados, { recursive: true, force: true });
+  rmSync(htmlOutput, { recursive: true, force: true });
+  mkdirSync(dirResultados, { recursive: true });
+  mkdirSync(dirResumo, { recursive: true });
+
+  console.log(`Auditoria de robustez de ${projeto.nome} (${id})...`);
+  console.log(`Alvo: ${alvoAuditoria(projeto)}`);
+  console.log('Modo: falhas controladas de sessão/rede + escrita QA no banco de teste.');
+  console.log('Perfil principal: colaborador.\n');
+
+  const codigo = await executarPlaywright(
+    ['test', '--config', config, ...extras],
+    {
+      DOC_PROJETO: id,
+      PLAYSAURUS_RESILIENCE_JSON: jsonOutput,
+      PLAYSAURUS_RESILIENCE_HTML: htmlOutput,
+    },
+  );
+
+  if (!existsSync(jsonOutput)) {
+    throw new Error('O Playwright terminou sem gerar o resultado JSON da auditoria de robustez.');
+  }
+
+  const dados = JSON.parse(readFileSync(jsonOutput, 'utf8'));
+  writeFileSync(markdownOutput, gerarMarkdown(projeto, dados, codigo, htmlOutput));
+
+  console.log(`\nResumo: ${path.relative(RAIZ, markdownOutput)}`);
+  console.log(`HTML detalhado: ${path.relative(RAIZ, htmlOutput)}`);
+  if (codigo !== 0) {
+    console.log('\nA auditoria de robustez encontrou falhas. Consulte o relatório acima.');
+    process.exitCode = codigo;
+  } else {
+    console.log('\nAuditoria de robustez concluída.');
+  }
+} catch (e) {
+  encerrarComErro(e);
+}

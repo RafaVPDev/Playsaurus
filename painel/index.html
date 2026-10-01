@@ -1,0 +1,1662 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Playsaurus — documentação de produtos</title>
+<link rel="icon" type="image/svg+xml" href="/painel/favicon.svg" />
+<link rel="alternate icon" href="/painel/favicon_io/favicon.ico" sizes="any" />
+<link rel="apple-touch-icon" href="/painel/favicon_io/apple-touch-icon.png" />
+<style>
+  /* Paleta e tipografia emprestadas do find-the-bug: quase-preto, acento
+     verde-limão e tudo monoespaçado. Tema escuro fixo, como no original —
+     esta é uma ferramenta, não um site. */
+  :root {
+    color-scheme: dark;
+    --bg: #0e0e0f;
+    --surface: #161618;
+    --surface-2: #1e1e21;
+    --border: #1f1f22;
+    --border-forte: #3a3a40;
+    --text: #e8e8ea;
+    /* No original é #6b6b72; clareado porque aqui ele carrega texto pequeno de
+       verdade (subtítulo, rodapé) e 3,65:1 fica abaixo do mínimo legível. */
+    --muted: #8d8d96;
+    --accent: #c8f135;
+    --accent-fraco: rgba(200, 241, 53, 0.06);
+    --accent-borda: rgba(200, 241, 53, 0.22);
+    --sobre-accent: #0e0e0f;
+    --ok: #c8f135;
+    --alerta: #e8b33c;
+    --erro: #f2565c;
+    --log-bg: #0a0a0b;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      'Liberation Mono', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 14.5px/1.6 var(--mono);
+    letter-spacing: 0.2px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  header h1 { font-size: 1.5rem; font-weight: 600; margin: 0 0 .35rem; letter-spacing: -.2px; }
+  header h1::after { content: '_'; color: var(--accent); }
+  .tagline { margin: 0 0 1rem; color: var(--accent); font-size: .85rem; }
+  header p { margin: 0 0 1.75rem; color: var(--muted); font-size: .88rem; }
+  header code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: .1rem .35rem;
+    border-radius: 6px;
+    font-size: .9em;
+    color: var(--text);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.35rem;
+    margin-bottom: 1rem;
+  }
+  .card__topo { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+  .card__nome { font-size: 1.2rem; font-weight: 700; margin: 0; }
+  .card__id { color: var(--accent); font-size: .8rem; }
+  .card__sub { color: var(--muted); font-size: .88rem; margin: .3rem 0 1rem; }
+
+  .campo { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+  .campo label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; width: 100%; }
+  .campo--check { margin-top: .9rem; }
+  .campo--check label { width: auto; text-transform: none; letter-spacing: normal; font-weight: 600; color: inherit; font-size: .9rem; order: 2; }
+  .campo--check input[type="checkbox"] { width: 1.05rem; height: 1.05rem; order: 1; accent-color: var(--accent); cursor: pointer; }
+  .campo--check .selo { order: 3; }
+  input[type=text], select {
+    flex: 1 1 380px;
+    min-width: 0;
+    padding: .55rem .7rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-2);
+    color: var(--text);
+    font: inherit;
+    font-size: .85rem;
+  }
+  input[type=text]::placeholder { color: var(--muted); }
+  input[type=text]:focus-visible, select:focus-visible {
+    outline: none;
+    border-color: var(--accent-borda);
+    box-shadow: 0 0 0 3px var(--accent-fraco);
+  }
+
+  .selo {
+    display: inline-block;
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: .2rem .5rem;
+    border-radius: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .selo--ok { color: var(--ok); }
+  .selo--alerta { color: var(--alerta); }
+  .selo--erro { color: var(--erro); }
+
+  .aviso { font-size: .84rem; margin: .6rem 0 0; }
+  .aviso--erro { color: var(--erro); }
+  .aviso--alerta { color: var(--alerta); }
+
+  .acoes { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1.1rem; padding-top: 1.1rem; border-top: 1px solid var(--border); }
+  /* Os botões de ação crescem para ocupar a linha inteira, sem o vão à direita. */
+  .acoes > button { flex: 1 1 auto; }
+
+  .ferramentas {
+    margin-top: .7rem;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, .01);
+  }
+  .ferramentas summary {
+    padding: .6rem .75rem;
+    color: var(--muted);
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+  }
+  .ferramentas[open] summary { border-bottom: 1px solid var(--border); }
+  .ferramentas__acoes {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    padding: .7rem;
+  }
+  .ferramentas__acoes > button { flex: 1 1 180px; }
+  button {
+    font: inherit;
+    font-size: .84rem;
+    font-weight: 500;
+    letter-spacing: .35px;
+    padding: .5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--accent-borda);
+    background: var(--accent-fraco);
+    color: var(--accent);
+    cursor: pointer;
+    transition: background-color .12s ease, border-color .12s ease, color .12s ease;
+  }
+  button:hover:not(:disabled) { background: rgba(200, 241, 53, .12); border-color: var(--accent); }
+  button:disabled { opacity: .35; cursor: not-allowed; }
+  button.primario {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--sobre-accent);
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  button.primario:hover:not(:disabled) { background: #d6f75a; border-color: #d6f75a; }
+  button.discreto {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  button.discreto:hover:not(:disabled) { background: var(--surface-2); border-color: var(--border-forte); color: var(--text); }
+
+  #log { margin-top: 1.5rem; display: none; }
+  #log.visivel { display: block; }
+  .log__topo { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+  .log__titulo { font-weight: 700; font-size: .95rem; }
+  pre {
+    margin: 0;
+    background: var(--log-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    max-height: 22rem;
+    overflow: auto;
+    font: 12.5px/1.6 var(--mono);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .girando {
+    width: .85rem; height: .85rem;
+    border: 2px solid var(--accent);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: girar .7s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+
+  .vazio { color: var(--muted); font-size: .9rem; }
+  .rodape { margin-top: 2.5rem; text-align: center; font-size: .82rem; }
+
+  /* --- Escolha do produto --- */
+  .seletor { display: flex; align-items: center; gap: .6rem; margin-bottom: 1rem; }
+  .seletor label {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .combo {
+    position: relative;
+    flex: 1 1 auto;
+    max-width: 420px;
+  }
+  .combo__gatilho {
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .6rem .8rem .6rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text);
+    font: inherit;
+    font-size: .88rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  }
+  .combo__gatilho:hover,
+  .combo__gatilho[aria-expanded='true'] {
+    background: var(--surface-2);
+    border-color: var(--accent-borda);
+  }
+  .combo__gatilho:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-fraco);
+  }
+  .combo__seta {
+    width: 1.65rem;
+    height: 1.65rem;
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--accent-fraco);
+    color: var(--accent);
+    transition: transform .15s ease, background-color .15s ease;
+  }
+  .combo__gatilho[aria-expanded='true'] .combo__seta {
+    transform: rotate(180deg);
+    background: rgba(200, 241, 53, .12);
+  }
+  .combo__lista {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + .45rem);
+    left: 0;
+    right: 0;
+    max-height: 280px;
+    overflow-y: auto;
+    padding: .35rem;
+    border: 1px solid var(--border-forte);
+    border-radius: 18px;
+    background: var(--surface);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .38);
+  }
+  .combo__lista[hidden] { display: none; }
+  .combo__opcao {
+    width: 100%;
+    display: block;
+    padding: .65rem .8rem;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: .86rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+  }
+  .combo__opcao:hover,
+  .combo__opcao:focus-visible {
+    outline: none;
+    border: 0;
+    background: rgba(200, 241, 53, .1);
+    color: var(--accent);
+  }
+  .combo__opcao[aria-selected='true'] {
+    background: var(--accent-fraco);
+    color: var(--accent);
+  }
+  .combo__opcao--novo {
+    margin-top: .25rem;
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 12px 12px;
+    color: var(--accent);
+  }
+
+  /* --- Cadastro de um produto novo --- */
+
+  .repos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: .5rem;
+    margin: .75rem 0 0;
+  }
+  .repo {
+    text-align: left;
+    padding: .6rem .75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    font: inherit;
+    font-size: .82rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+  }
+  .repo:hover:not(:disabled) { border-color: var(--accent-borda); background: var(--accent-fraco); }
+  .repo[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent-fraco);
+    color: var(--accent);
+  }
+  .repo:disabled { opacity: .4; cursor: not-allowed; }
+  .repo small { color: var(--muted); font-size: .72rem; }
+
+  .grade-campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: .75rem 1rem;
+    margin-top: 1rem;
+  }
+  .grade-campos .campo { flex-direction: column; align-items: stretch; gap: .3rem; }
+  .grade-campos .campo > input[type=text],
+  .grade-campos .campo > select {
+    box-sizing: border-box;
+    width: 100%;
+    height: 42px;
+    min-height: 42px;
+    flex: 0 0 42px;
+  }
+  #campoBaseUrl {
+    box-sizing: border-box;
+    width: 100%;
+    height: 42px;
+    min-height: 42px;
+    flex: 0 0 42px;
+  }
+  .campo--cor .campo__controles {
+    display: flex;
+    align-items: stretch;
+    gap: .55rem;
+    width: 100%;
+  }
+  input[type=color] {
+    width: 3.25rem;
+    min-width: 3.25rem;
+    height: 2.3rem;
+    padding: 2px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-2);
+    cursor: pointer;
+  }
+  .campo--cor .campo__controles input[type=text] {
+    flex: 1 1 auto;
+    text-transform: uppercase;
+  }
+  .cor-neutra {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: .55rem;
+    margin-top: .1rem;
+  }
+  .cor-neutra__rotulo {
+    color: var(--muted);
+    font-size: .72rem;
+    white-space: nowrap;
+  }
+  .cor-neutra__range {
+    width: 100%;
+    height: 14px;
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--border-forte);
+    border-radius: 999px;
+    background: linear-gradient(90deg, #121212 0%, #777 50%, #eeeeee 100%);
+    cursor: pointer;
+  }
+  .cor-neutra__range::-webkit-slider-thumb {
+    width: 17px;
+    height: 17px;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid var(--text);
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .55);
+  }
+  .cor-neutra__range::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border: 2px solid var(--text);
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, .55);
+  }
+  .cor-neutra__range:focus-visible {
+    outline: none;
+    border-color: var(--accent-borda);
+    box-shadow: 0 0 0 3px var(--accent-fraco);
+  }
+  .dica { color: var(--muted); font-size: .75rem; margin: .15rem 0 0; }
+
+  /* --- Excluir produto --- */
+  .excluir-linha {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .excluir-aviso { color: var(--muted); font-size: .82rem; margin-right: auto; }
+  .preview-linha {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .9rem;
+    font-size: .85rem;
+  }
+  .preview-rotulo { color: var(--muted); }
+  .preview-linha a { color: var(--accent); word-break: break-all; text-decoration: none; }
+  .preview-linha a:hover { text-decoration: underline; }
+  .preview-linha .discreto { margin-left: auto; }
+  .perigo-link {
+    background: transparent;
+    border-color: transparent;
+    color: var(--muted);
+    padding: .35rem .5rem;
+    font-size: .8rem;
+    letter-spacing: 0;
+  }
+  .perigo-link:hover:not(:disabled) { background: transparent; border-color: transparent; color: var(--erro); }
+  .perigo {
+    background: transparent;
+    border-color: var(--erro);
+    color: var(--erro);
+  }
+  .perigo:hover:not(:disabled) { background: rgba(242, 86, 92, .12); border-color: var(--erro); }
+
+  /* Linha divisória entre blocos de um mesmo card. */
+  .divisor { border: 0; border-top: 1px solid var(--border); margin: 1.1rem 0; }
+
+  /* --- Modal de confirmação --- */
+  .modal-fundo {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 1.25rem;
+    background: rgba(0, 0, 0, .58);
+    backdrop-filter: blur(2px);
+  }
+  .modal-fundo[hidden] { display: none; }
+  .modal {
+    width: 100%;
+    max-width: 440px;
+    background: var(--surface);
+    border: 1px solid var(--border-forte);
+    border-radius: 14px;
+    padding: 1.4rem 1.5rem 1.25rem;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .5);
+  }
+  .modal h3 { margin: 0 0 .6rem; font-size: 1.1rem; font-weight: 700; }
+  .modal p { margin: 0 0 .9rem; color: var(--muted); font-size: .88rem; }
+  .modal__url {
+    display: block;
+    padding: .6rem .75rem;
+    margin: 0 0 .5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-2);
+    color: var(--accent);
+    font-size: .9rem;
+    word-break: break-all;
+  }
+  .modal__url--local { color: var(--alerta); border-color: rgba(232, 179, 60, .4); }
+  .modal__aviso { color: var(--alerta); font-size: .82rem; margin: 0 0 1rem; }
+  .modal__acoes { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1.1rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Playsaurus</h1>
+    <p class="tagline">Documentação + Playwright — uma instalação, vários projetos</p>
+    <p id="subtitulo">
+      Instalada em <code id="raiz">…</code> —
+      escolha o projeto, confira onde fica o repositório dele nesta máquina e gere a documentação.
+    </p>
+  </header>
+
+  <div class="seletor" id="seletor" hidden>
+    <label id="comboProjetoLabel">Projeto</label>
+    <div class="combo" id="comboProjeto">
+      <button
+        type="button"
+        class="combo__gatilho"
+        id="comboProjetoGatilho"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-labelledby="comboProjetoLabel comboProjetoTexto"
+        aria-controls="comboProjetoLista"
+      >
+        <span id="comboProjetoTexto">Escolha um projeto</span>
+        <span class="combo__seta" aria-hidden="true">⌄</span>
+      </button>
+      <div
+        class="combo__lista"
+        id="comboProjetoLista"
+        role="listbox"
+        aria-labelledby="comboProjetoLabel"
+        hidden
+      ></div>
+    </div>
+  </div>
+
+  <div id="projetos"><p class="vazio">Carregando…</p></div>
+
+  <section id="novo" hidden>
+    <div class="card">
+      <h2 class="card__nome">Novo projeto</h2>
+      <p class="card__sub">
+        Escolha o repositório do projeto. O painel cria a documentação já pronta
+        para compilar: as seções padrão, um tema a partir da cor escolhida e um
+        modelo de captura de screenshots.
+      </p>
+
+      <div class="campo">
+        <label for="pastaBase">Pasta onde ficam seus repositórios</label>
+        <input type="text" id="pastaBase" spellcheck="false" placeholder="C:\Users\...\Projetos" />
+        <button id="btnProcurar">Procurar</button>
+      </div>
+
+      <div id="repos" class="repos"></div>
+      <p id="avisoRepos" class="aviso aviso--alerta" hidden></p>
+
+      <div id="detalhes" hidden>
+        <div class="grade-campos">
+          <div class="campo">
+            <label for="campoId">Identificador</label>
+            <input type="text" id="campoId" spellcheck="false" />
+            <p class="dica">Vira o nome da pasta e o argumento dos comandos.</p>
+          </div>
+          <div class="campo">
+            <label for="campoNome">Nome do projeto</label>
+            <input type="text" id="campoNome" />
+            <p class="dica">Aparece no título e na navegação do portal.</p>
+          </div>
+          <div class="campo">
+            <label for="campoUrl">Endereço do app</label>
+            <input type="text" id="campoUrl" spellcheck="false" placeholder="https://meuprojeto.com" />
+            <p class="dica">Onde o projeto fica no ar. Serve para montar o sitemap.</p>
+          </div>
+          <div class="campo">
+            <label for="campoBaseUrl">Caminho da documentação</label>
+            <input type="text" id="campoBaseUrl" spellcheck="false" value="/docs/" />
+            <p class="dica">A barra final é obrigatória.</p>
+          </div>
+          <div class="campo">
+            <label for="campoIdiomaPadrao">Idioma padrão</label>
+            <select id="campoIdiomaPadrao">
+              <option value="pt-BR">Português (Brasil)</option>
+              <option value="pt-PT">Português (Portugal)</option>
+              <option value="en">Inglês (Estados Unidos)</option>
+              <option value="es">Espanhol (Espanha)</option>
+            </select>
+            <p class="dica">Define o idioma fonte da documentação e das capturas.</p>
+          </div>
+          <div class="campo campo--cor">
+            <label for="campoCorHex">Cor da marca</label>
+            <div class="campo__controles">
+              <input type="color" id="campoCor" value="#2f6feb" aria-label="Seletor visual da cor da marca" />
+              <input type="text" id="campoCorHex" value="#2F6FEB" spellcheck="false" inputmode="text" aria-label="Hexadecimal da cor da marca" placeholder="#2F6FEB" />
+            </div>
+            <div class="cor-neutra">
+              <span class="cor-neutra__rotulo">Tons de cinza</span>
+              <input
+                type="range"
+                class="cor-neutra__range"
+                id="campoCorCinza"
+                min="18"
+                max="238"
+                value="96"
+                aria-label="Selecionar tom de cinza"
+              />
+            </div>
+            <p class="dica">Escolha uma cor, informe o HEX ou arraste o degradê para um tom neutro.</p>
+          </div>
+        </div>
+
+        <div class="acoes">
+          <button class="primario" id="btnCriar">Criar projeto</button>
+          <button class="discreto" id="btnCancelar">Cancelar</button>
+        </div>
+      </div>
+
+      <p id="erroNovo" class="aviso aviso--erro" hidden></p>
+    </div>
+  </section>
+
+  <section id="log">
+    <div class="log__topo">
+      <span class="girando" id="girando" hidden></span>
+      <span class="log__titulo" id="logTitulo"></span>
+      <span class="selo" id="logSelo" hidden></span>
+      <button class="discreto" id="copiarLog" style="margin-left:auto">Copiar</button>
+      <button class="discreto" id="limparLog">Limpar</button>
+    </div>
+    <pre id="logTexto"></pre>
+  </section>
+
+  <p class="vazio rodape">
+    O painel funciona enquanto a janela do console estiver aberta — fechá-la desliga o servidor.
+  </p>
+</div>
+
+<div class="modal-fundo" id="modalPublicar" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalPublicarTitulo">
+    <h3 id="modalPublicarTitulo">Publicar no repositório</h3>
+    <p>A documentação será gerada e copiada usando a URL abaixo (sitemap, links canônicos):</p>
+    <code class="modal__url" id="modalPublicarUrl"></code>
+    <p class="modal__aviso" id="modalPublicarAviso" hidden>
+      ⚠ Esta é uma URL local. O site publicado ficaria com endereços apontando para a sua máquina.
+    </p>
+    <div class="modal__acoes">
+      <button class="discreto" id="modalPublicarCancelar">Cancelar</button>
+      <button class="primario" id="modalPublicarConfirmar">Confirmar e publicar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (sel) => document.querySelector(sel);
+const el = (tag, props = {}, filhos = []) => {
+  const n = Object.assign(document.createElement(tag), props);
+  for (const f of [].concat(filhos)) n.append(f);
+  return n;
+};
+
+let rodando = false;
+let previewAtivo = null; // { id, url } da pré-visualização no ar, ou null
+// O caminho precisa ser confirmado ao menos uma vez nesta sessão antes das
+// ações do projeto. Guardar o valor retornado pelo servidor também permite
+// bloquear tudo novamente caso o campo seja alterado depois de salvo.
+const caminhosConfirmados = new Map();
+
+const ORIGENS = {
+  env: (d) => ['selo--ok', `variável ${d}`],
+  local: () => ['selo--ok', 'configurado aqui'],
+  relativo: () => ['selo--alerta', 'caminho padrão'],
+  ausente: () => ['selo--erro', 'não configurado'],
+};
+
+async function carregar() {
+  try {
+    const r = await fetch('/api/projetos');
+    if (!r.ok) throw new Error(`o servidor respondeu ${r.status}`);
+    const { projetos, raiz, pastaBase, preview } = await r.json();
+    previewAtivo = preview ?? null;
+    $('#raiz').textContent = raiz;
+    if (pastaBase && !$('#pastaBase').value) $('#pastaBase').value = pastaBase;
+    desenhar(projetos);
+  } catch (e) {
+    semServidor(e);
+  }
+}
+
+/**
+ * Sozinha, esta página não faz nada: quem executa build, screenshots e
+ * publicação é o servidor local. Sem ele, explicar o que fazer — antes isto
+ * ficava em "Carregando…" para sempre, sem dizer o motivo.
+ */
+function semServidor(e) {
+  // Qualquer coisa que não seja http(s) veio do disco (file:, data:, blob:).
+  const doDisco = !location.protocol.startsWith('http');
+
+  $('#subtitulo').textContent = doDisco
+    ? 'Esta página foi aberta direto do disco.'
+    : 'Não consegui falar com o servidor do painel.';
+
+  $('#projetos').replaceChildren(
+    el('div', { className: 'card' }, [
+      el('h2', {
+        className: 'card__nome',
+        textContent: doDisco ? 'Abra pelo painel.bat' : 'O painel não está no ar',
+      }),
+      el('p', {
+        className: 'card__sub',
+        textContent: doDisco
+          ? 'O painel precisa de um servidor local para gerar a documentação — abrir o index.html no navegador não é suficiente.'
+          : `O servidor precisa estar rodando (${e.message}).`,
+      }),
+      el('p', {
+        className: 'aviso aviso--alerta',
+        textContent: doDisco
+          ? 'Feche esta aba e dê dois cliques em painel.bat, na pasta da documentação. O navegador abre sozinho no endereço certo.'
+          : 'Dê dois cliques em painel.bat, ou rode "npm run painel" no terminal.',
+      }),
+    ]),
+  );
+}
+
+const NOVO = '__novo';
+let listaProjetos = [];
+let selecionado = null;
+
+/**
+ * Monta o combo e mostra só o produto escolhido.
+ *
+ * Antes isto empilhava um cartão por produto: com dois já ficava comprido, e a
+ * ideia é escolher um e agir sobre ele.
+ */
+function desenhar(projetos) {
+  listaProjetos = projetos;
+
+  // Preserva a escolha entre atualizações; se o produto sumiu, cai no primeiro.
+  if (selecionado !== NOVO && !projetos.some((p) => p.id === selecionado)) {
+    selecionado = projetos[0]?.id ?? NOVO;
+  }
+
+  const lista = $('#comboProjetoLista');
+  lista.replaceChildren();
+  for (const p of projetos) {
+    const opcao = el('button', {
+      type: 'button',
+      className: 'combo__opcao',
+      textContent: p.erro ? `${p.id} — projeto.json inválido` : p.nome,
+    });
+    opcao.dataset.value = p.id;
+    opcao.setAttribute('role', 'option');
+    opcao.onclick = () => selecionarNoCombo(p.id);
+    lista.append(opcao);
+  }
+  const novo = el('button', {
+    type: 'button',
+    className: 'combo__opcao combo__opcao--novo',
+    textContent: '+ Novo projeto…',
+  });
+  novo.dataset.value = NOVO;
+  novo.setAttribute('role', 'option');
+  novo.onclick = () => selecionarNoCombo(NOVO);
+  lista.append(novo);
+
+  atualizarCombo();
+  $('#seletor').hidden = false;
+
+  mostrarSelecionado();
+}
+
+function atualizarCombo() {
+  const projeto = listaProjetos.find((p) => p.id === selecionado);
+  $('#comboProjetoTexto').textContent =
+    selecionado === NOVO
+      ? '+ Novo projeto…'
+      : projeto
+        ? (projeto.erro ? `${projeto.id} — projeto.json inválido` : projeto.nome)
+        : 'Escolha um projeto';
+
+  for (const opcao of $('#comboProjetoLista').querySelectorAll('.combo__opcao')) {
+    opcao.setAttribute('aria-selected', String(opcao.dataset.value === selecionado));
+  }
+}
+
+function abrirCombo() {
+  const lista = $('#comboProjetoLista');
+  const gatilho = $('#comboProjetoGatilho');
+  lista.hidden = false;
+  gatilho.setAttribute('aria-expanded', 'true');
+  const atual = lista.querySelector('[aria-selected="true"]') ?? lista.querySelector('.combo__opcao');
+  atual?.focus();
+}
+
+function fecharCombo({ devolverFoco = false } = {}) {
+  $('#comboProjetoLista').hidden = true;
+  $('#comboProjetoGatilho').setAttribute('aria-expanded', 'false');
+  if (devolverFoco) $('#comboProjetoGatilho').focus();
+}
+
+function selecionarNoCombo(valor) {
+  selecionado = valor;
+  atualizarCombo();
+  fecharCombo({ devolverFoco: true });
+  mostrarSelecionado();
+}
+
+function mostrarSelecionado() {
+  const alvo = $('#projetos');
+
+  if (selecionado === NOVO) {
+    alvo.replaceChildren();
+    if ($('#novo').hidden) {
+      $('#novo').hidden = false;
+      carregarRepositorios();
+    }
+    return;
+  }
+
+  $('#novo').hidden = true;
+  const p = listaProjetos.find((x) => x.id === selecionado);
+  alvo.replaceChildren(
+    p
+      ? cartaoDoProjeto(p)
+      : el('p', {
+          className: 'vazio',
+          textContent: 'Nenhum projeto ainda — escolha "+ Novo projeto" para criar o primeiro.',
+        }),
+  );
+  if (rodando) travarBotoes(true);
+}
+
+function cartaoDoProjeto(p) {
+  {
+    const card = el('div', { className: 'card' });
+
+    if (p.erro) {
+      card.append(
+        el('div', { className: 'card__topo' }, [
+          el('h2', { className: 'card__nome', textContent: p.id }),
+          el('span', { className: 'selo selo--erro', textContent: 'projeto.json inválido' }),
+        ]),
+        el('p', { className: 'aviso aviso--erro', textContent: p.erro }),
+      );
+      return card;
+    }
+
+    const [classeSelo, textoSelo] = ORIGENS[p.origem](p.detalhe);
+
+    card.append(
+      el('div', { className: 'card__topo' }, [
+        el('h2', { className: 'card__nome', textContent: p.nome }),
+        el('span', { className: 'card__id', textContent: p.id }),
+      ]),
+      el('p', {
+        className: 'card__sub',
+        textContent: `${p.url}${p.baseUrl}  ·  ${p.secoes.join(' · ')}`,
+      }),
+    );
+
+    const entrada = el('input', {
+      type: 'text',
+      value: p.caminho ?? '',
+      placeholder: 'C:\\caminho\\para\\o\\repositorio',
+      spellcheck: false,
+    });
+    let caminhoConfirmado = caminhosConfirmados.get(p.id);
+    const salvar = el('button', { textContent: 'Salvar' });
+    salvar.onclick = async () => {
+      salvar.disabled = true;
+      try {
+        const r = await fetch('/api/caminho', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id: p.id, caminho: entrada.value }),
+        });
+        const dados = await r.json();
+        if (dados.erro) throw new Error(dados.erro);
+        const projetoAtualizado = dados.projetos.find((projeto) => projeto.id === p.id);
+        caminhosConfirmados.set(
+          p.id,
+          projetoAtualizado?.caminho ?? entrada.value,
+        );
+        desenhar(dados.projetos);
+      } catch (e) {
+        // Sem isto o botão ficava desabilitado para sempre, sem explicação.
+        salvar.disabled = false;
+        card.append(el('p', {
+          className: 'aviso aviso--erro',
+          textContent: `Não consegui salvar o caminho: ${e.message}`,
+        }));
+      }
+    };
+
+    // Divisória entre o cabeçalho (nome/URL/seções) e as configurações do repositório.
+    card.append(el('hr', { className: 'divisor' }));
+
+    card.append(
+      el('div', { className: 'campo' }, [
+        el('label', { textContent: `Repositório do projeto (a doc vai para ${p.destino})` }),
+        entrada,
+        el('span', { className: `selo ${classeSelo}`, textContent: textoSelo }),
+        salvar,
+      ]),
+    );
+
+    if (p.caminho && !p.existe) {
+      card.append(el('p', {
+        className: 'aviso aviso--erro',
+        textContent: 'Essa pasta não existe. Corrija o caminho antes de publicar.',
+      }));
+    } else if (p.foraDoPadrao) {
+      // A pasta existir não quer dizer que seja a certa: publicar apaga o
+      // public/docs de destino. Se o caminho fugiu do padrão do projeto, dizer.
+      card.append(el('p', {
+        className: 'aviso aviso--alerta',
+        textContent:
+          `Atenção: este caminho não é o padrão do projeto (${p.padrao}). ` +
+          `Publicar vai substituir ${p.destino} da pasta acima.`,
+      }));
+    }
+    if (!p.temEnv) {
+      card.append(el('p', {
+        className: 'aviso aviso--alerta',
+        textContent: `Sem projetos/${p.id}/.env — os screenshots precisam das credenciais da conta de demonstração.`,
+      }));
+    }
+
+    // A Arquitetura é interna: o check decide se ela vai para o site do cliente.
+    // Só aparece nos projetos que têm essa seção (arquiteturaPublicar !== null).
+    if (p.arquiteturaPublicar !== null) {
+      const chk = el('input', {
+        type: 'checkbox',
+        checked: p.arquiteturaPublicar,
+        id: `pub-arquitetura-${p.id}`,
+      });
+      chk.onchange = async () => {
+        chk.disabled = true;
+        try {
+          const r = await fetch('/api/secao', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ id: p.id, secao: 'arquitetura', publicar: chk.checked }),
+          });
+          const dados = await r.json();
+          if (dados.erro) throw new Error(dados.erro);
+          desenhar(dados.projetos);
+        } catch (e) {
+          chk.disabled = false;
+          chk.checked = !chk.checked;
+          card.append(el('p', {
+            className: 'aviso aviso--erro',
+            textContent: `Não consegui salvar a opção: ${e.message}`,
+          }));
+        }
+      };
+      card.append(
+        el('div', { className: 'campo campo--check' }, [
+          chk,
+          el('label', {
+            htmlFor: `pub-arquitetura-${p.id}`,
+            textContent: 'Publicar a Arquitetura no site do cliente',
+          }),
+          el('span', {
+            className: `selo ${p.arquiteturaPublicar ? 'selo--ok' : 'selo--alerta'}`,
+            textContent: p.arquiteturaPublicar ? 'incluída' : 'só interna',
+          }),
+        ]),
+      );
+    }
+
+    // Divisória entre o bloco da Arquitetura/repositório e a URL pública.
+    card.append(el('hr', { className: 'divisor' }));
+
+    // Campo URL pública — override do projeto.url no build público.
+    const urlAtual = p.urlPublica || p.url || '';
+    const entradaUrl = el('input', {
+      type: 'text',
+      value: urlAtual,
+      placeholder: 'https://meu-produto.com',
+      spellcheck: false,
+    });
+    const salvarUrl = el('button', { textContent: 'Salvar' });
+    salvarUrl.onclick = async () => {
+      salvarUrl.disabled = true;
+      try {
+        const r = await fetch('/api/url-publica', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ id: p.id, urlPublica: entradaUrl.value.trim() }),
+        });
+        const dados = await r.json();
+        if (dados.erro) throw new Error(dados.erro);
+        desenhar(dados.projetos);
+      } catch (e) {
+        salvarUrl.disabled = false;
+        card.append(el('p', {
+          className: 'aviso aviso--erro',
+          textContent: `Não consegui salvar a URL: ${e.message}`,
+        }));
+      }
+    };
+    const urlEhLocal = /localhost|127\.0\.0\.1/.test(urlAtual);
+    card.append(
+      el('div', { className: 'campo' }, [
+        el('label', { textContent: 'URL pública (usada ao publicar no repositório)' }),
+        entradaUrl,
+        el('span', {
+          className: `selo ${urlEhLocal ? 'selo--alerta' : 'selo--ok'}`,
+          textContent: urlEhLocal ? 'local' : 'ok',
+        }),
+        salvarUrl,
+      ]),
+    );
+    if (urlEhLocal) {
+      card.append(el('p', {
+        className: 'aviso aviso--alerta',
+        textContent: 'A URL ainda aponta para localhost. Atualize antes de publicar.',
+      }));
+    }
+
+    const acoes = el('div', { className: 'acoes' });
+    const botoes = [
+      { acao: 'build', rotulo: 'Gerar build', bloqueado: false },
+      {
+        acao: 'visualizar-interno',
+        rotulo: 'Visualizar (interno)',
+        bloqueado: !p.temBuild,
+        onclick: () => visualizar(p.id, 'interno'),
+        title: !p.temBuild ? 'Gere o build antes de visualizar.' : '',
+      },
+      {
+        // Sempre gera a versão pública na hora e sobe o preview: reflete o check.
+        acao: 'visualizar-cliente',
+        rotulo: 'Visualizar (cliente)',
+        bloqueado: false,
+        onclick: () => visualizarCliente(p),
+      },
+      { acao: 'exportar-pdf', rotulo: 'Exportar PDF', bloqueado: false },
+      {
+        acao: 'publicar',
+        rotulo: 'Publicar no repositório',
+        primario: true,
+        bloqueado: !p.existe,
+        onclick: () => {
+          if (rodando) return;
+          abrirModalPublicar(p);
+        },
+      },
+    ];
+    const aguardandoSalvar = () => entrada.value !== caminhoConfirmado;
+    const atualizarBloqueioDasAcoes = () => {
+      const precisaSalvar = aguardandoSalvar();
+      for (const b of acoes.querySelectorAll('button[data-acao]')) {
+        b.dataset.aguardaSalvar = precisaSalvar ? 'sim' : 'nao';
+        b.disabled =
+          rodando ||
+          b.dataset.bloqueado === 'sim' ||
+          b.dataset.aguardaSalvar === 'sim';
+      }
+    };
+    for (const item of botoes) {
+      const bloqueado = Boolean(item.bloqueado);
+      const b = el('button', {
+        textContent: item.rotulo,
+        className: item.primario ? 'primario' : '',
+        disabled: bloqueado || aguardandoSalvar(),
+      });
+      b.dataset.acao = 'sim';
+      b.dataset.bloqueado = bloqueado ? 'sim' : 'nao';
+      b.dataset.aguardaSalvar = aguardandoSalvar() ? 'sim' : 'nao';
+      // "Visualizar" sobe um servidor persistente; as demais são one-shot por SSE.
+      b.onclick = item.onclick ?? (() => executar(item.acao, p.id, `${item.rotulo} — ${p.nome}`));
+      if (item.title) b.title = item.title;
+      acoes.append(b);
+    }
+    entrada.addEventListener('input', atualizarBloqueioDasAcoes);
+    card.append(acoes, ferramentasDoProjeto(p));
+    if (previewAtivo && previewAtivo.id === p.id) card.append(linhaPreview(previewAtivo.url));
+    card.append(rodapeExcluir(p));
+    return card;
+  }
+}
+
+/** Ferramentas menos usadas ficam recolhidas para não competir com o fluxo principal. */
+function ferramentasDoProjeto(p) {
+  const bloco = el('details', { className: 'ferramentas' });
+  bloco.append(el('summary', { textContent: 'Ferramentas' }));
+
+  const acoes = el('div', { className: 'ferramentas__acoes' });
+  const itens = [
+    { rotulo: 'Gerar screenshots', acao: 'screenshots', bloqueado: !p.temEnv },
+    { rotulo: 'Abrir pasta do projeto', ferramenta: 'abrir-projeto' },
+    { rotulo: 'Abrir pasta de saída', ferramenta: 'abrir-output' },
+    { rotulo: 'Limpar cache', ferramenta: 'limpar-cache' },
+    { rotulo: 'Limpar builds', ferramenta: 'limpar-builds' },
+  ];
+
+  for (const item of itens) {
+    const bloqueado = Boolean(item.bloqueado);
+    const botao = el('button', {
+      className: 'discreto',
+      textContent: item.rotulo,
+      disabled: bloqueado || rodando,
+    });
+    botao.dataset.bloqueado = bloqueado ? 'sim' : 'nao';
+    botao.dataset.aguardaSalvar = 'nao';
+
+    if (item.acao) {
+      botao.dataset.acao = 'sim';
+      botao.onclick = () => executar(item.acao, p.id, `${item.rotulo} — ${p.nome}`);
+      if (bloqueado) botao.title = 'Configure o .env do projeto antes de gerar screenshots.';
+    } else {
+      botao.dataset.ferramenta = 'sim';
+      botao.onclick = () => executarFerramenta(item.ferramenta, p, botao);
+    }
+
+    acoes.append(botao);
+  }
+
+  bloco.append(acoes);
+  return bloco;
+}
+
+/**
+ * Linha de excluir, com confirmação em dois passos no lugar de um confirm() do
+ * navegador — apaga a documentação do produto (não o repositório dele).
+ */
+function rodapeExcluir(p) {
+  const linha = el('div', { className: 'excluir-linha' });
+
+  const abrir = el('button', { className: 'perigo-link', textContent: 'Excluir este projeto' });
+  const montarConfirmacao = () => {
+    linha.replaceChildren(
+      el('span', {
+        className: 'excluir-aviso',
+        textContent: `Apagar projetos/${p.id}/ e o build? O repositório do projeto não é tocado.`,
+      }),
+      (() => {
+        const sim = el('button', { className: 'perigo', textContent: 'Excluir' });
+        sim.onclick = async () => {
+          sim.disabled = true;
+          try {
+            const r = await fetch('/api/excluir', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({ id: p.id }),
+            });
+            const dados = await r.json();
+            if (dados.erro) throw new Error(dados.erro);
+            selecionado = null; // deixa desenhar escolher o próximo
+            desenhar(dados.projetos);
+          } catch (e) {
+            sim.disabled = false;
+            linha.append(el('p', { className: 'aviso aviso--erro', textContent: e.message }));
+          }
+        };
+        return sim;
+      })(),
+      (() => {
+        const nao = el('button', { className: 'discreto', textContent: 'Cancelar' });
+        nao.onclick = () => linha.replaceChildren(abrir);
+        return nao;
+      })(),
+    );
+  };
+  abrir.onclick = montarConfirmacao;
+
+  linha.append(abrir);
+  return linha;
+}
+
+/**
+ * Modal de confirmação da publicação: mostra a URL que será usada e destaca
+ * quando ela ainda é local, evitando publicar o site apontando para localhost.
+ */
+function abrirModalPublicar(p) {
+  const urlEfetiva = p.urlPublica || p.url;
+  const ehLocal = /localhost|127\.0\.0\.1/.test(urlEfetiva);
+
+  const campoUrl = $('#modalPublicarUrl');
+  campoUrl.textContent = urlEfetiva;
+  campoUrl.classList.toggle('modal__url--local', ehLocal);
+  $('#modalPublicarAviso').hidden = !ehLocal;
+
+  const confirmar = $('#modalPublicarConfirmar');
+  confirmar.onclick = () => {
+    fecharModalPublicar();
+    executar('publicar', p.id, `Publicar no repositório — ${p.nome}`);
+  };
+
+  $('#modalPublicar').hidden = false;
+  confirmar.focus();
+}
+
+function fecharModalPublicar() {
+  $('#modalPublicar').hidden = true;
+}
+
+$('#modalPublicarCancelar').onclick = fecharModalPublicar;
+// Clicar no fundo (fora do modal) ou apertar Esc fecha sem publicar.
+$('#modalPublicar').addEventListener('click', (e) => {
+  if (e.target === $('#modalPublicar')) fecharModalPublicar();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('#modalPublicar').hidden) fecharModalPublicar();
+});
+
+function travarBotoes(travar) {
+  for (const b of document.querySelectorAll('button[data-acao], button[data-ferramenta]')) {
+    if (travar) b.disabled = true;
+    else {
+      b.disabled =
+        b.dataset.bloqueado === 'sim' ||
+        b.dataset.aguardaSalvar === 'sim';
+    }
+  }
+  for (const seletor of document.querySelectorAll('select[data-acao-select]')) {
+    seletor.disabled = travar;
+  }
+}
+
+async function executarFerramenta(acao, p, botao) {
+  const confirmacoes = {
+    'limpar-cache': 'Apagar cache e temporários deste projeto? Tudo pode ser regenerado.',
+    'limpar-builds': 'Apagar os builds interno e cliente deste projeto? Eles podem ser gerados novamente.',
+  };
+  if (confirmacoes[acao] && !window.confirm(confirmacoes[acao])) return;
+  if (rodando) return;
+
+  botao.disabled = true;
+  try {
+    const r = await fetch('/api/ferramenta', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: p.id, acao }),
+    });
+    const dados = await r.json();
+    if (dados.erro) throw new Error(dados.erro);
+
+    if (dados.mensagem) {
+      $('#log').classList.add('visivel');
+      $('#logTitulo').textContent = `Ferramentas — ${p.nome}`;
+      $('#logTexto').textContent = dados.mensagem;
+      $('#girando').hidden = true;
+      const selo = $('#logSelo');
+      selo.hidden = false;
+      selo.textContent = 'concluído';
+      selo.className = 'selo selo--ok';
+    }
+    carregar();
+  } catch (e) {
+    $('#log').classList.add('visivel');
+    $('#logTitulo').textContent = `Ferramentas — ${p.nome}`;
+    $('#logTexto').textContent = e.message;
+    $('#girando').hidden = true;
+    const selo = $('#logSelo');
+    selo.hidden = false;
+    selo.textContent = 'falhou';
+    selo.className = 'selo selo--erro';
+    botao.disabled = false;
+  }
+}
+
+function executar(acao, id, titulo, opcoes = {}) {
+  if (rodando) return;
+  rodando = true;
+  travarBotoes(true);
+
+  $('#log').classList.add('visivel');
+  $('#logTitulo').textContent = titulo;
+  $('#logTexto').textContent = '';
+  $('#girando').hidden = false;
+  $('#logSelo').hidden = true;
+  $('#log').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const paramModo = opcoes.modo ? `&modo=${encodeURIComponent(opcoes.modo)}` : '';
+  const paramArg = opcoes.arg ? `&arg=${encodeURIComponent(opcoes.arg)}` : '';
+  const fonte = new EventSource(`/api/executar?acao=${encodeURIComponent(acao)}&projeto=${encodeURIComponent(id)}${paramModo}${paramArg}`);
+
+  fonte.addEventListener('linha', (e) => {
+    const pre = $('#logTexto');
+    const coladoEmbaixo = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 24;
+    pre.textContent += JSON.parse(e.data) + '\n';
+    if (coladoEmbaixo) pre.scrollTop = pre.scrollHeight;
+  });
+
+  fonte.addEventListener('fim', (e) => {
+    const { codigo } = JSON.parse(e.data);
+    const selo = $('#logSelo');
+    selo.hidden = false;
+    selo.textContent = codigo === 0 ? 'concluído' : `falhou (código ${codigo})`;
+    selo.className = `selo ${codigo === 0 ? 'selo--ok' : 'selo--erro'}`;
+    $('#girando').hidden = true;
+    fonte.close();
+    rodando = false;
+    carregar();
+    // Encadeamento (ex.: "Visualizar (cliente)" builda e depois sobe o preview).
+    if (typeof opcoes.aoConcluir === 'function') opcoes.aoConcluir(codigo);
+  });
+
+  fonte.onerror = () => {
+    if (!rodando) return;
+    $('#logTexto').textContent += '\n[conexão com o painel interrompida]\n';
+    $('#girando').hidden = true;
+    fonte.close();
+    rodando = false;
+    carregar();
+  };
+}
+
+/**
+ * Sobe a pré-visualização da doc buildada e abre numa aba. Diferente das ações
+ * one-shot, aqui o backend deixa um servidor do artefato final no ar e devolve a URL.
+ */
+async function visualizar(id, modo = 'interno', abaExistente = null) {
+  // Abre a aba já no clique (gesto do usuário) para escapar do bloqueador de
+  // pop-up; a URL entra depois que o servidor sobe. No fluxo do cliente a aba já
+  // vem aberta desde o clique, antes do build assíncrono.
+  const aba = abaExistente ?? window.open('', '_blank');
+  try {
+    const r = await fetch('/api/visualizar', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id, modo }),
+    });
+    const dados = await r.json();
+    if (dados.erro) throw new Error(dados.erro);
+    if (aba) aba.location = dados.url;
+    carregar(); // reflete "pré-visualização no ar" no card
+  } catch (e) {
+    if (aba) aba.close();
+    $('#log').classList.add('visivel');
+    $('#logTitulo').textContent = 'Visualizar';
+    $('#logTexto').textContent = e.message;
+    $('#girando').hidden = true;
+    const selo = $('#logSelo');
+    selo.hidden = false;
+    selo.textContent = 'falhou';
+    selo.className = 'selo selo--erro';
+  }
+}
+
+/**
+ * "Visualizar (cliente)": gera a versão pública (sem as seções internas, como a
+ * Arquitetura quando desmarcada) e sobe a pré-visualização — assim o botão sempre
+ * mostra exatamente o que o cliente veria. A aba abre já no clique para escapar do
+ * bloqueador de pop-up; se o build falhar, ela é fechada.
+ */
+function visualizarCliente(p) {
+  const aba = window.open('', '_blank');
+  executar('build', p.id, `Gerar build (cliente) — ${p.nome}`, {
+    modo: 'publico',
+    aoConcluir: (codigo) => {
+      if (codigo === 0) visualizar(p.id, 'publico', aba);
+      else if (aba) aba.close();
+    },
+  });
+}
+
+/** Linha "pré-visualização no ar" com o link e o botão de parar. */
+function linhaPreview(urlPreview) {
+  const linha = el('div', { className: 'preview-linha' });
+  linha.append(
+    el('span', { className: 'preview-rotulo', textContent: 'Pré-visualização no ar: ' }),
+    el('a', { href: urlPreview, target: '_blank', rel: 'noopener', textContent: urlPreview }),
+  );
+  const parar = el('button', { className: 'discreto', textContent: 'Parar' });
+  parar.onclick = async () => {
+    parar.disabled = true;
+    try {
+      await fetch('/api/visualizar/parar', { method: 'POST' });
+    } catch {
+      // Parar é conveniência: se falhar, o próximo carregar() reconcilia o estado.
+    }
+    carregar();
+  };
+  linha.append(parar);
+  return linha;
+}
+
+// Copia todo o conteúdo textual da janela de log. O fallback mantém o botão
+// funcionando mesmo em navegadores onde a Clipboard API não estiver disponível.
+$('#copiarLog').onclick = async () => {
+  const botao = $('#copiarLog');
+  const texto = $('#logTexto').textContent;
+  if (!texto) return;
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(texto);
+    } else {
+      const area = document.createElement('textarea');
+      area.value = texto;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.append(area);
+      area.select();
+      document.execCommand('copy');
+      area.remove();
+    }
+
+    botao.textContent = 'Copiado';
+    setTimeout(() => { botao.textContent = 'Copiar'; }, 1200);
+  } catch {
+    botao.textContent = 'Falhou';
+    setTimeout(() => { botao.textContent = 'Copiar'; }, 1200);
+  }
+};
+
+// "Limpar" some com o bloco inteiro. Antes esvaziava só o texto e deixava o
+// título e o selo na tela, parecendo que algo tinha ficado pendurado.
+$('#limparLog').onclick = () => {
+  $('#log').classList.remove('visivel');
+  $('#logTexto').textContent = '';
+  $('#logTitulo').textContent = '';
+  $('#logSelo').hidden = true;
+};
+
+// ---------------------------------------------------------------- novo produto
+
+let repoEscolhido = null;
+
+// O NFD separa o acento da letra; \p{Diacritic} então remove o acento sozinho.
+// Preferido a uma faixa de caracteres combinantes, que fica invisível no código.
+const paraId = (nome) =>
+  nome.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+const paraNome = (pasta) =>
+  pasta.replace(/[-_]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+function erroNovo(mensagem) {
+  const p = $('#erroNovo');
+  p.hidden = !mensagem;
+  p.textContent = mensagem || '';
+}
+
+async function carregarRepositorios(base) {
+  const alvo = $('#repos');
+  alvo.replaceChildren(el('p', { className: 'vazio', textContent: 'Procurando…' }));
+
+  const r = base === undefined
+    ? await fetch('/api/repositorios')
+    : await fetch('/api/base', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ base }),
+      });
+  const dados = await r.json();
+
+  if (dados.base && !$('#pastaBase').value) $('#pastaBase').value = dados.base;
+
+  const aviso = $('#avisoRepos');
+  alvo.replaceChildren();
+
+  if (!dados.base) {
+    aviso.hidden = false;
+    aviso.textContent = 'Informe a pasta onde ficam seus repositórios e clique em Procurar.';
+    return;
+  }
+  if (!dados.existe) {
+    aviso.hidden = false;
+    aviso.textContent = `A pasta ${dados.base} não existe.`;
+    return;
+  }
+  if (!dados.repositorios.length) {
+    aviso.hidden = false;
+    aviso.textContent = `Nenhum repositório em ${dados.base} — procuro por pastas com .git ou package.json.`;
+    return;
+  }
+  aviso.hidden = true;
+
+  for (const repo of dados.repositorios) {
+    // Sem public/ não há onde a documentação ser servida pelo app.
+    const impedimento = repo.usadoPor
+      ? `já documentado (${repo.usadoPor})`
+      : !repo.temPublic
+        ? 'sem pasta public/'
+        : null;
+
+    const botao = el('button', {
+      className: 'repo',
+      disabled: Boolean(impedimento),
+      title: impedimento ? `${repo.caminho} — ${impedimento}` : repo.caminho,
+    }, [
+      el('span', { textContent: repo.nome }),
+      el('small', { textContent: impedimento ?? 'pronto para documentar' }),
+    ]);
+    botao.setAttribute('aria-pressed', 'false');
+
+    botao.onclick = () => {
+      for (const b of alvo.querySelectorAll('.repo')) b.setAttribute('aria-pressed', 'false');
+      botao.setAttribute('aria-pressed', 'true');
+      repoEscolhido = repo;
+      $('#campoId').value = paraId(repo.nome);
+      $('#campoNome').value = paraNome(repo.nome);
+      $('#detalhes').hidden = false;
+      erroNovo('');
+    };
+    alvo.append(botao);
+  }
+}
+
+$('#comboProjetoGatilho').onclick = () => {
+  if ($('#comboProjetoLista').hidden) abrirCombo();
+  else fecharCombo();
+};
+
+$('#comboProjetoGatilho').onkeydown = (e) => {
+  if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) {
+    e.preventDefault();
+    abrirCombo();
+  }
+};
+
+$('#comboProjetoLista').onkeydown = (e) => {
+  const opcoes = [...$('#comboProjetoLista').querySelectorAll('.combo__opcao')];
+  const atual = opcoes.indexOf(document.activeElement);
+
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    fecharCombo({ devolverFoco: true });
+  } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const passo = e.key === 'ArrowDown' ? 1 : -1;
+    opcoes[(atual + passo + opcoes.length) % opcoes.length]?.focus();
+  } else if (e.key === 'Home' || e.key === 'End') {
+    e.preventDefault();
+    opcoes[e.key === 'Home' ? 0 : opcoes.length - 1]?.focus();
+  } else if ((e.key === 'Enter' || e.key === ' ') && atual >= 0) {
+    e.preventDefault();
+    opcoes[atual].click();
+  } else if (e.key === 'Tab') {
+    fecharCombo();
+  }
+};
+
+document.addEventListener('click', (e) => {
+  if (!$('#comboProjeto').contains(e.target)) fecharCombo();
+});
+
+$('#btnProcurar').onclick = () => carregarRepositorios($('#pastaBase').value.trim());
+
+/** Sai do cadastro e volta para o primeiro produto da lista. */
+function fecharCadastro() {
+  $('#detalhes').hidden = true;
+  repoEscolhido = null;
+  erroNovo('');
+  selecionado = listaProjetos[0]?.id ?? NOVO;
+  atualizarCombo();
+  mostrarSelecionado();
+}
+
+$('#btnCancelar').onclick = fecharCadastro;
+
+function normalizarHexCor(valor) {
+  const bruto = String(valor || '').trim().replace(/^#/, '');
+  if (/^[0-9a-fA-F]{3}$/.test(bruto)) {
+    return '#' + bruto.split('').map((c) => c + c).join('').toUpperCase();
+  }
+  if (/^[0-9a-fA-F]{6}$/.test(bruto)) return '#' + bruto.toUpperCase();
+  return null;
+}
+
+function sincronizarCinza(hex) {
+  const normalizada = normalizarHexCor(hex);
+  if (!normalizada) return;
+  const valor = normalizada.slice(1);
+  const r = parseInt(valor.slice(0, 2), 16);
+  const g = parseInt(valor.slice(2, 4), 16);
+  const b = parseInt(valor.slice(4, 6), 16);
+  if (r === g && g === b) $('#campoCorCinza').value = String(r);
+}
+
+function definirCorMarca(hex) {
+  const normalizada = normalizarHexCor(hex);
+  if (!normalizada) return false;
+  $('#campoCor').value = normalizada;
+  $('#campoCorHex').value = normalizada;
+  sincronizarCinza(normalizada);
+  return true;
+}
+
+$('#campoCor').addEventListener('input', (e) => definirCorMarca(e.target.value));
+$('#campoCorHex').addEventListener('input', (e) => {
+  const normalizada = normalizarHexCor(e.target.value);
+  if (normalizada) {
+    $('#campoCor').value = normalizada;
+    sincronizarCinza(normalizada);
+  }
+});
+$('#campoCorHex').addEventListener('blur', () => {
+  if (!definirCorMarca($('#campoCorHex').value)) definirCorMarca($('#campoCor').value);
+});
+$('#campoCorCinza').addEventListener('input', (e) => {
+  const canal = Math.max(0, Math.min(255, Number(e.target.value) || 0));
+  const parte = canal.toString(16).padStart(2, '0');
+  definirCorMarca(`#${parte}${parte}${parte}`);
+});
+definirCorMarca($('#campoCor').value);
+
+$('#btnCriar').onclick = async () => {
+  if (!repoEscolhido) return erroNovo('Escolha um repositório antes.');
+  const botao = $('#btnCriar');
+  botao.disabled = true;
+  erroNovo('');
+  try {
+    const corNormalizada = normalizarHexCor($('#campoCorHex').value || $('#campoCor').value);
+    if (!corNormalizada) throw new Error('Informe uma cor válida no formato #RRGGBB.');
+    definirCorMarca(corNormalizada);
+
+    const r = await fetch('/api/projetos', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        id: $('#campoId').value.trim(),
+        nome: $('#campoNome').value.trim(),
+        url: $('#campoUrl').value.trim(),
+        baseUrl: $('#campoBaseUrl').value.trim(),
+        idiomaPadrao: $('#campoIdiomaPadrao').value,
+        cor: corNormalizada,
+        repositorio: repoEscolhido.caminho,
+      }),
+    });
+    const dados = await r.json();
+    if (dados.erro) throw new Error(dados.erro);
+
+    $('#detalhes').hidden = true;
+    repoEscolhido = null;
+    erroNovo('');
+    // Já abre no produto recém-criado, que é o que ela vai querer mexer agora.
+    selecionado = dados.criado;
+    desenhar(dados.projetos);
+
+    $('#log').classList.add('visivel');
+    $('#logTitulo').textContent = `Projeto "${dados.criado}" criado`;
+    $('#logSelo').hidden = false;
+    $('#logSelo').textContent = 'concluído';
+    $('#logSelo').className = 'selo selo--ok';
+    $('#logTexto').textContent =
+      `projetos/${dados.criado}/\n` +
+      dados.arquivos.map((a) => `  ${a}`).join('\n') +
+      `\n\nEscreva o conteúdo-base em projetos/${dados.criado}/docs/. Para preparar idiomas pelo terminal: npm run i18n:init -- ${dados.criado}.` +
+      `\nValide traduções com npm run i18n:check -- ${dados.criado}, ajuste playwright/ e gere screenshots por idioma antes do build final.` +
+      `\nO publish standalone envia somente index.html, help-index.json e PDFs para o produto.`;
+  } catch (e) {
+    erroNovo(e.message);
+  } finally {
+    botao.disabled = false;
+  }
+};
+
+carregar();
+</script>
+</body>
+</html>

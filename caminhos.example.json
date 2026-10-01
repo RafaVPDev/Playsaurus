@@ -1,0 +1,4 @@
+{
+  "_comentario": "Copie para caminhos.local.json — ou, melhor, use `npm run painel`. Este arquivo mapeia o id do projeto para a pasta do repositório do projeto NESTA máquina, e por isso não é versionado.",
+  "meu-projeto": "C:/Users/SEU_USUARIO/Projetos/meu-projeto"
+}
