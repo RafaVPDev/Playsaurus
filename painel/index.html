@@ -117,28 +117,37 @@
   /* Os botões de ação crescem para ocupar a linha inteira, sem o vão à direita. */
   .acoes > button { flex: 1 1 auto; }
 
-  .ferramentas {
+  .atalhos-projeto {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .55rem;
     margin-top: .7rem;
+  }
+  .atalho-grupo {
+    min-width: 0;
     border: 1px solid var(--border);
     border-radius: 9px;
     background: rgba(255, 255, 255, .01);
   }
-  .ferramentas summary {
-    padding: .6rem .75rem;
-    color: var(--muted);
+  .atalho-grupo summary {
+    padding: .7rem .8rem;
+    color: var(--text);
     font-size: .8rem;
     font-weight: 600;
     cursor: pointer;
     user-select: none;
   }
-  .ferramentas[open] summary { border-bottom: 1px solid var(--border); }
-  .ferramentas__acoes {
+  .atalho-grupo[open] summary { border-bottom: 1px solid var(--border); }
+  .atalho-grupo__acoes {
     display: flex;
     gap: .5rem;
     flex-wrap: wrap;
     padding: .7rem;
   }
-  .ferramentas__acoes > button { flex: 1 1 180px; }
+  .atalho-grupo__acoes > button {
+    flex: 1 1 150px;
+    color: var(--text);
+  }
   button {
     font: inherit;
     font-size: .84rem;
@@ -165,7 +174,7 @@
   button.discreto {
     background: transparent;
     border-color: var(--border);
-    color: var(--muted);
+    color: var(--text);
   }
   button.discreto:hover:not(:disabled) { background: var(--surface-2); border-color: var(--border-forte); color: var(--text); }
 
@@ -527,7 +536,7 @@
   .perigo-link {
     background: transparent;
     border-color: transparent;
-    color: var(--muted);
+    color: var(--text);
     padding: .35rem .5rem;
     font-size: .8rem;
     letter-spacing: 0;
@@ -1333,24 +1342,17 @@ function cartaoDoProjeto(p) {
   }
 }
 
-/** Ferramentas menos usadas ficam recolhidas para não competir com o fluxo principal. */
-function ferramentasDoProjeto(p) {
-  const bloco = el('details', { className: 'ferramentas' });
-  bloco.append(el('summary', { textContent: 'Ferramentas' }));
+/** Grupos recolhíveis de ações menos usadas do projeto. */
+function grupoDeAcoesDoProjeto(p, rotulo, itens) {
+  const grupo = el('details', { className: 'atalho-grupo' });
+  grupo.append(el('summary', { textContent: rotulo }));
 
-  const acoes = el('div', { className: 'ferramentas__acoes' });
-  const itens = [
-    { rotulo: 'Gerar screenshots', acao: 'screenshots', bloqueado: !p.temEnv },
-    { rotulo: 'Abrir pasta do projeto', ferramenta: 'abrir-projeto' },
-    { rotulo: 'Abrir pasta de saída', ferramenta: 'abrir-output' },
-    { rotulo: 'Limpar cache', ferramenta: 'limpar-cache' },
-    { rotulo: 'Limpar builds', ferramenta: 'limpar-builds' },
-  ];
-
+  const acoes = el('div', { className: 'atalho-grupo__acoes' });
   for (const item of itens) {
     const bloqueado = Boolean(item.bloqueado);
     const botao = el('button', {
       className: 'discreto',
+      type: 'button',
       textContent: item.rotulo,
       disabled: bloqueado || rodando,
     });
@@ -1365,12 +1367,27 @@ function ferramentasDoProjeto(p) {
       botao.dataset.ferramenta = 'sim';
       botao.onclick = () => executarFerramenta(item.ferramenta, p, botao);
     }
-
     acoes.append(botao);
   }
 
-  bloco.append(acoes);
-  return bloco;
+  grupo.append(acoes);
+  return grupo;
+}
+
+function ferramentasDoProjeto(p) {
+  const linha = el('div', { className: 'atalhos-projeto' });
+  linha.append(
+    grupoDeAcoesDoProjeto(p, 'Opções', [
+      { rotulo: 'Abrir pasta', ferramenta: 'abrir-projeto' },
+      { rotulo: 'Abrir Saída', ferramenta: 'abrir-output' },
+      { rotulo: 'Limpar Cache', ferramenta: 'limpar-cache' },
+      { rotulo: 'Limpar Build', ferramenta: 'limpar-builds' },
+    ]),
+    grupoDeAcoesDoProjeto(p, 'Ferramentas', [
+      { rotulo: 'Gerar screenshots', acao: 'screenshots', bloqueado: !p.temEnv },
+    ]),
+  );
+  return linha;
 }
 
 /**
@@ -1491,7 +1508,7 @@ async function executarFerramenta(acao, p, botao) {
 
     if (dados.mensagem) {
       $('#log').classList.add('visivel');
-      $('#logTitulo').textContent = `Ferramentas — ${p.nome}`;
+      $('#logTitulo').textContent = `Opções — ${p.nome}`;
       $('#logTexto').textContent = dados.mensagem;
       $('#girando').hidden = true;
       const selo = $('#logSelo');
@@ -1502,7 +1519,7 @@ async function executarFerramenta(acao, p, botao) {
     carregar();
   } catch (e) {
     $('#log').classList.add('visivel');
-    $('#logTitulo').textContent = `Ferramentas — ${p.nome}`;
+    $('#logTitulo').textContent = `Opções — ${p.nome}`;
     $('#logTexto').textContent = e.message;
     $('#girando').hidden = true;
     const selo = $('#logSelo');
