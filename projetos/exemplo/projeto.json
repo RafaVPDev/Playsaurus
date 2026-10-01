@@ -52,5 +52,6 @@
       "para": "/arquitetura"
     }
   },
-  "indiceAjuda": {}
+  "indiceAjuda": {},
+  "urlPublica": "http://localhost:8080"
 }

@@ -39,9 +39,9 @@ function copiarPdfs(projeto, destino, modo) {
   if (!fs.existsSync(origem)) return [];
 
   const tipo = modo === 'publico' ? 'cliente' : 'equipe';
-  const nomesEsperados = projeto.idiomas.disponiveis.length === 1
-    ? [`documentacao-${tipo}.pdf`]
-    : projeto.idiomas.disponiveis.map((idioma) => `documentacao-${tipo}.${idioma.locale}.pdf`);
+  const nomesEsperados = projeto.idiomas.disponiveis.map(
+    (idioma) => `documentacao-${tipo}.${idioma.locale}.pdf`,
+  );
   const existentes = nomesEsperados.filter((nome) => fs.existsSync(path.join(origem, nome)));
   if (!existentes.length) return [];
 
@@ -83,13 +83,15 @@ function urlAbsolutaDocumento(projeto, locale, rota = '') {
   catch { return null; }
 }
 
-function urlSitemapComIndexHtml(projeto, locale, rota = '') {
+function urlSitemap(projeto, locale, rota = '') {
   const absoluta = urlAbsolutaDocumento(projeto, locale, rota);
   if (!absoluta) return null;
   try {
     const url = new URL(absoluta);
-    const pasta = url.pathname.replace(/\/+$/, '');
-    url.pathname = `${pasta || ''}/index.html`;
+    // O sitemap publica a URL canônica do portal, nunca o arquivo físico
+    // `index.html`. Também remove a barra final para manter URLs estáveis como
+    // /docs, /docs/usabilidade e /docs/usabilidade/login.
+    url.pathname = url.pathname.replace(/\/+$/, '') || '/';
     url.search = '';
     url.hash = '';
     return url.href;
@@ -109,7 +111,7 @@ function gerarSitemap(projeto, dados, destino) {
     for (const idioma of projeto.idiomas.disponiveis) {
       const locale = idioma.locale;
       if (rota && !dados.content[locale]?.pages.some((p) => p.route === rota)) continue;
-      const loc = urlSitemapComIndexHtml(projeto, locale, rota);
+      const loc = urlSitemap(projeto, locale, rota);
       if (!loc) continue;
       entries.push(
         `  <url>\n` +
