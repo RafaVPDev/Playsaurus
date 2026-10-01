@@ -1,15 +1,15 @@
 {
   "nome": "Playsaurus",
   "tagline": "Documentação do Playsaurus",
-  "url": "http://127.0.0.1:4321",
+  "url": "http://localhost:8080",
   "baseUrl": "/docs/",
   "repositorio": {
     "relativo": "",
-    "env": "PLAYSAURUS_REPO",
+    "env": "EXEMPLO_REPO",
     "destino": "public/docs"
   },
   "screenshots": {
-    "envBaseUrl": "PLAYSAURUS_BASE_URL",
+    "envBaseUrl": "EXEMPLO_BASE_URL",
     "baseUrlPadrao": "http://localhost:8080",
     "destino": "img/usabilidade/geradas"
   },
@@ -30,8 +30,7 @@
       "id": "arquitetura",
       "rotulo": "Arquitetura",
       "tag": "Para desenvolvedores",
-      "descricao": "Documentação técnica: stack, banco de dados, autenticação, integrações e segurança.",
-      "publicar": false
+      "descricao": "Documentação técnica: stack, banco de dados, autenticação, integrações e segurança."
     },
     {
       "id": "usabilidade",
@@ -53,6 +52,5 @@
       "para": "/arquitetura"
     }
   },
-  "indiceAjuda": {},
-  "urlPublica": "http://127.0.0.1:4321"
+  "indiceAjuda": {}
 }

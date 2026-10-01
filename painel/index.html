@@ -75,7 +75,7 @@
   .campo--check label { width: auto; text-transform: none; letter-spacing: normal; font-weight: 600; color: inherit; font-size: .9rem; order: 2; }
   .campo--check input[type="checkbox"] { width: 1.05rem; height: 1.05rem; order: 1; accent-color: var(--accent); cursor: pointer; }
   .campo--check .selo { order: 3; }
-  input[type=text], select {
+  input[type=text] {
     flex: 1 1 380px;
     min-width: 0;
     padding: .55rem .7rem;
@@ -87,7 +87,7 @@
     font-size: .85rem;
   }
   input[type=text]::placeholder { color: var(--muted); }
-  input[type=text]:focus-visible, select:focus-visible {
+  input[type=text]:focus-visible {
     outline: none;
     border-color: var(--accent-borda);
     box-shadow: 0 0 0 3px var(--accent-fraco);
@@ -302,6 +302,78 @@
     border-radius: 0 0 12px 12px;
     color: var(--accent);
   }
+  .combo--campo {
+    width: 100%;
+    max-width: none;
+  }
+  .grade-campos .combo--campo {
+    flex: 0 0 42px;
+    height: 42px;
+  }
+  .grade-campos .combo--campo .combo__gatilho {
+    height: 42px;
+    min-height: 42px;
+    padding: .55rem .7rem .55rem .85rem;
+    border-radius: 8px;
+  }
+  .grade-campos .combo--campo .combo__seta {
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 7px;
+  }
+  .grade-campos .combo--campo .combo__lista {
+    border-radius: 10px;
+  }
+  #comboIdiomaPadraoTexto {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .combo--editavel {
+    flex: 1 1 380px;
+    max-width: none;
+  }
+  .combo__entrada-wrap {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    padding: 0 .45rem 0 .9rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface-2);
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  }
+  .combo__entrada-wrap:hover,
+  .combo__entrada-wrap:focus-within {
+    border-color: var(--accent-borda);
+  }
+  .combo__entrada-wrap:focus-within { box-shadow: 0 0 0 3px var(--accent-fraco); }
+  .combo__entrada {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--text);
+    font: inherit;
+    font-size: .85rem;
+  }
+  .combo__entrada:focus { outline: none; }
+  .combo__seta-botao {
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+  }
+  .combo__seta-botao:hover:not(:disabled) {
+    border: 0;
+    background: rgba(200, 241, 53, .12);
+  }
+  .combo__entrada-wrap[data-aberto='true'] .combo__seta { transform: rotate(180deg); }
 
   /* --- Cadastro de um produto novo --- */
 
@@ -336,13 +408,18 @@
 
   .grade-campos {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: .75rem 1rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .9rem 1rem;
     margin-top: 1rem;
   }
+  @media (max-width: 900px) {
+    .grade-campos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 620px) {
+    .grade-campos { grid-template-columns: 1fr; }
+  }
   .grade-campos .campo { flex-direction: column; align-items: stretch; gap: .3rem; }
-  .grade-campos .campo > input[type=text],
-  .grade-campos .campo > select {
+  .grade-campos .campo > input[type=text] {
     box-sizing: border-box;
     width: 100%;
     height: 42px;
@@ -509,7 +586,7 @@
 <div class="container">
   <header>
     <h1>Playsaurus</h1>
-    <p class="tagline">Documentação + Playwright — uma instalação, vários projetos</p>
+    <p class="tagline">Documentação de produtos com Playwright, Markdown, screenshots, PDF.</p>
     <p id="subtitulo">
       Instalada em <code id="raiz">…</code> —
       escolha o projeto, confira onde fica o repositório dele nesta máquina e gere a documentação.
@@ -553,8 +630,38 @@
       </p>
 
       <div class="campo">
-        <label for="pastaBase">Pasta onde ficam seus repositórios</label>
-        <input type="text" id="pastaBase" spellcheck="false" placeholder="C:\Users\...\Projetos" />
+        <label for="pastaBase" id="comboPastaBaseLabel">Pasta onde ficam seus repositórios</label>
+        <div class="combo combo--editavel" id="comboPastaBase">
+          <div class="combo__entrada-wrap" id="comboPastaBaseEntrada">
+            <input
+              type="text"
+              class="combo__entrada"
+              id="pastaBase"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="C:\Users\...\Projetos"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded="false"
+              aria-controls="comboPastaBaseLista"
+              aria-labelledby="comboPastaBaseLabel"
+            />
+            <button
+              type="button"
+              class="combo__seta combo__seta-botao"
+              id="comboPastaBaseGatilho"
+              aria-label="Mostrar pastas conhecidas"
+              tabindex="-1"
+            >⌄</button>
+          </div>
+          <div
+            class="combo__lista"
+            id="comboPastaBaseLista"
+            role="listbox"
+            aria-labelledby="comboPastaBaseLabel"
+            hidden
+          ></div>
+        </div>
         <button id="btnProcurar">Procurar</button>
       </div>
 
@@ -584,13 +691,29 @@
             <p class="dica">A barra final é obrigatória.</p>
           </div>
           <div class="campo">
-            <label for="campoIdiomaPadrao">Idioma padrão</label>
-            <select id="campoIdiomaPadrao">
-              <option value="pt-BR">Português (Brasil)</option>
-              <option value="pt-PT">Português (Portugal)</option>
-              <option value="en">Inglês (Estados Unidos)</option>
-              <option value="es">Espanhol (Espanha)</option>
-            </select>
+            <label id="comboIdiomaPadraoLabel">Idioma padrão</label>
+            <input type="hidden" id="campoIdiomaPadrao" value="pt-BR" />
+            <div class="combo combo--campo" id="comboIdiomaPadrao">
+              <button
+                type="button"
+                class="combo__gatilho"
+                id="comboIdiomaPadraoGatilho"
+                aria-haspopup="listbox"
+                aria-expanded="false"
+                aria-labelledby="comboIdiomaPadraoLabel comboIdiomaPadraoTexto"
+                aria-controls="comboIdiomaPadraoLista"
+              >
+                <span id="comboIdiomaPadraoTexto">Português (Brasil)</span>
+                <span class="combo__seta" aria-hidden="true">⌄</span>
+              </button>
+              <div
+                class="combo__lista"
+                id="comboIdiomaPadraoLista"
+                role="listbox"
+                aria-labelledby="comboIdiomaPadraoLabel"
+                hidden
+              ></div>
+            </div>
             <p class="dica">Define o idioma fonte da documentação e das capturas.</p>
           </div>
           <div class="campo campo--cor">
@@ -643,7 +766,7 @@
 
 <div class="modal-fundo" id="modalPublicar" hidden>
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalPublicarTitulo">
-    <h3 id="modalPublicarTitulo">Publicar no repositório</h3>
+    <h3 id="modalPublicarTitulo">Copiar para Repositório</h3>
     <p>A documentação será gerada e copiada usando a URL abaixo (sitemap, links canônicos):</p>
     <code class="modal__url" id="modalPublicarUrl"></code>
     <p class="modal__aviso" id="modalPublicarAviso" hidden>
@@ -651,7 +774,7 @@
     </p>
     <div class="modal__acoes">
       <button class="discreto" id="modalPublicarCancelar">Cancelar</button>
-      <button class="primario" id="modalPublicarConfirmar">Confirmar e publicar</button>
+      <button class="primario" id="modalPublicarConfirmar">Confirmar e copiar</button>
     </div>
   </div>
 </div>
@@ -670,6 +793,20 @@ let previewAtivo = null; // { id, url } da pré-visualização no ar, ou null
 // ações do projeto. Guardar o valor retornado pelo servidor também permite
 // bloquear tudo novamente caso o campo seja alterado depois de salvo.
 const caminhosConfirmados = new Map();
+let pastasBaseConhecidas = [];
+
+function pastaPai(caminho) {
+  const limpo = String(caminho || '').replace(/[\\/]+$/, '');
+  const corte = Math.max(limpo.lastIndexOf('\\'), limpo.lastIndexOf('/'));
+  return corte > 0 ? limpo.slice(0, corte) : null;
+}
+
+function atualizarPastasBaseConhecidas(pastaBase, projetos = listaProjetos) {
+  const valores = [pastaBase, ...projetos.map((p) => pastaPai(p.caminho))]
+    .filter(Boolean);
+  pastasBaseConhecidas = [...new Set(valores)];
+  desenharComboPastaBase();
+}
 
 const ORIGENS = {
   env: (d) => ['selo--ok', `variável ${d}`],
@@ -686,6 +823,7 @@ async function carregar() {
     previewAtivo = preview ?? null;
     $('#raiz').textContent = raiz;
     if (pastaBase && !$('#pastaBase').value) $('#pastaBase').value = pastaBase;
+    atualizarPastasBaseConhecidas(pastaBase, projetos);
     desenhar(projetos);
   } catch (e) {
     semServidor(e);
@@ -810,6 +948,107 @@ function selecionarNoCombo(valor) {
   mostrarSelecionado();
 }
 
+const IDIOMAS_PADRAO = [
+  ['pt-BR', 'Português (Brasil)'],
+  ['pt-PT', 'Português (Portugal)'],
+  ['en', 'Inglês (Estados Unidos)'],
+  ['es', 'Espanhol (Espanha)'],
+];
+
+function desenharComboIdiomaPadrao() {
+  const lista = $('#comboIdiomaPadraoLista');
+  lista.replaceChildren();
+  const valor = $('#campoIdiomaPadrao').value;
+  for (const [id, rotulo] of IDIOMAS_PADRAO) {
+    const opcao = el('button', {
+      type: 'button',
+      className: 'combo__opcao',
+      textContent: rotulo,
+    });
+    opcao.dataset.value = id;
+    opcao.setAttribute('role', 'option');
+    opcao.setAttribute('aria-selected', String(id === valor));
+    opcao.onclick = () => selecionarIdiomaPadrao(id);
+    lista.append(opcao);
+  }
+}
+
+function atualizarComboIdiomaPadrao() {
+  const valor = $('#campoIdiomaPadrao').value;
+  const atual = IDIOMAS_PADRAO.find(([id]) => id === valor) ?? IDIOMAS_PADRAO[0];
+  $('#campoIdiomaPadrao').value = atual[0];
+  $('#comboIdiomaPadraoTexto').textContent = atual[1];
+  for (const opcao of $('#comboIdiomaPadraoLista').querySelectorAll('.combo__opcao')) {
+    opcao.setAttribute('aria-selected', String(opcao.dataset.value === atual[0]));
+  }
+}
+
+function abrirComboIdiomaPadrao() {
+  const lista = $('#comboIdiomaPadraoLista');
+  lista.hidden = false;
+  $('#comboIdiomaPadraoGatilho').setAttribute('aria-expanded', 'true');
+  (lista.querySelector('[aria-selected="true"]') ?? lista.querySelector('.combo__opcao'))?.focus();
+}
+
+function fecharComboIdiomaPadrao({ devolverFoco = false } = {}) {
+  $('#comboIdiomaPadraoLista').hidden = true;
+  $('#comboIdiomaPadraoGatilho').setAttribute('aria-expanded', 'false');
+  if (devolverFoco) $('#comboIdiomaPadraoGatilho').focus();
+}
+
+function selecionarIdiomaPadrao(valor) {
+  $('#campoIdiomaPadrao').value = valor;
+  atualizarComboIdiomaPadrao();
+  fecharComboIdiomaPadrao({ devolverFoco: true });
+}
+
+function desenharComboPastaBase() {
+  const lista = $('#comboPastaBaseLista');
+  if (!lista) return;
+  lista.replaceChildren();
+  const atual = $('#pastaBase')?.value.trim() ?? '';
+  const consulta = atual.toLocaleLowerCase();
+  const opcoes = [...new Set(
+    pastasBaseConhecidas.filter((caminho) => !consulta || caminho.toLocaleLowerCase().includes(consulta)),
+  )];
+  for (const caminho of opcoes) {
+    const opcao = el('button', {
+      type: 'button',
+      className: 'combo__opcao',
+      textContent: caminho,
+      title: caminho,
+    });
+    opcao.dataset.value = caminho;
+    opcao.setAttribute('role', 'option');
+    opcao.setAttribute('aria-selected', String(caminho === atual));
+    opcao.onclick = () => selecionarPastaBase(caminho);
+    lista.append(opcao);
+  }
+  if (!opcoes.length) {
+    lista.append(el('span', { className: 'vazio', textContent: 'Nenhuma pasta conhecida ainda.' }));
+  }
+}
+
+function abrirComboPastaBase() {
+  desenharComboPastaBase();
+  const lista = $('#comboPastaBaseLista');
+  lista.hidden = false;
+  $('#pastaBase').setAttribute('aria-expanded', 'true');
+  $('#comboPastaBaseEntrada').dataset.aberto = 'true';
+}
+
+function fecharComboPastaBase() {
+  $('#comboPastaBaseLista').hidden = true;
+  $('#pastaBase').setAttribute('aria-expanded', 'false');
+  $('#comboPastaBaseEntrada').dataset.aberto = 'false';
+}
+
+function selecionarPastaBase(caminho) {
+  $('#pastaBase').value = caminho;
+  fecharComboPastaBase();
+  carregarRepositorios(caminho);
+}
+
 function mostrarSelecionado() {
   const alvo = $('#projetos');
 
@@ -870,6 +1109,12 @@ function cartaoDoProjeto(p) {
       spellcheck: false,
     });
     let caminhoConfirmado = caminhosConfirmados.get(p.id);
+    const aguardandoSalvar = () => entrada.value !== caminhoConfirmado;
+    const avisoSalvar = el('p', {
+      className: 'aviso aviso--alerta',
+      textContent: 'Salve o caminho do repositório para liberar os botões abaixo.',
+      hidden: !aguardandoSalvar(),
+    });
     const salvar = el('button', { textContent: 'Salvar' });
     salvar.onclick = async () => {
       salvar.disabled = true;
@@ -907,12 +1152,13 @@ function cartaoDoProjeto(p) {
         el('span', { className: `selo ${classeSelo}`, textContent: textoSelo }),
         salvar,
       ]),
+      avisoSalvar,
     );
 
     if (p.caminho && !p.existe) {
       card.append(el('p', {
         className: 'aviso aviso--erro',
-        textContent: 'Essa pasta não existe. Corrija o caminho antes de publicar.',
+        textContent: 'Essa pasta não existe. Corrija o caminho antes de copiar.',
       }));
     } else if (p.foraDoPadrao) {
       // A pasta existir não quer dizer que seja a certa: publicar apaga o
@@ -921,7 +1167,7 @@ function cartaoDoProjeto(p) {
         className: 'aviso aviso--alerta',
         textContent:
           `Atenção: este caminho não é o padrão do projeto (${p.padrao}). ` +
-          `Publicar vai substituir ${p.destino} da pasta acima.`,
+          `Copiar vai substituir ${p.destino} da pasta acima.`,
       }));
     }
     if (!p.temEnv) {
@@ -1008,7 +1254,7 @@ function cartaoDoProjeto(p) {
     const urlEhLocal = /localhost|127\.0\.0\.1/.test(urlAtual);
     card.append(
       el('div', { className: 'campo' }, [
-        el('label', { textContent: 'URL pública (usada ao publicar no repositório)' }),
+        el('label', { textContent: 'URL pública (usada ao copiar para o repositório)' }),
         entradaUrl,
         el('span', {
           className: `selo ${urlEhLocal ? 'selo--alerta' : 'selo--ok'}`,
@@ -1020,7 +1266,7 @@ function cartaoDoProjeto(p) {
     if (urlEhLocal) {
       card.append(el('p', {
         className: 'aviso aviso--alerta',
-        textContent: 'A URL ainda aponta para localhost. Atualize antes de publicar.',
+        textContent: 'A URL ainda aponta para localhost. Atualize antes de copiar.',
       }));
     }
 
@@ -1044,7 +1290,7 @@ function cartaoDoProjeto(p) {
       { acao: 'exportar-pdf', rotulo: 'Exportar PDF', bloqueado: false },
       {
         acao: 'publicar',
-        rotulo: 'Publicar no repositório',
+        rotulo: 'Copiar para Repositório',
         primario: true,
         bloqueado: !p.existe,
         onclick: () => {
@@ -1053,9 +1299,9 @@ function cartaoDoProjeto(p) {
         },
       },
     ];
-    const aguardandoSalvar = () => entrada.value !== caminhoConfirmado;
     const atualizarBloqueioDasAcoes = () => {
       const precisaSalvar = aguardandoSalvar();
+      avisoSalvar.hidden = !precisaSalvar;
       for (const b of acoes.querySelectorAll('button[data-acao]')) {
         b.dataset.aguardaSalvar = precisaSalvar ? 'sim' : 'nao';
         b.disabled =
@@ -1191,7 +1437,7 @@ function abrirModalPublicar(p) {
   const confirmar = $('#modalPublicarConfirmar');
   confirmar.onclick = () => {
     fecharModalPublicar();
-    executar('publicar', p.id, `Publicar no repositório — ${p.nome}`);
+    executar('publicar', p.id, `Copiar para Repositório — ${p.nome}`);
   };
 
   $('#modalPublicar').hidden = false;
@@ -1455,6 +1701,10 @@ async function carregarRepositorios(base) {
   const dados = await r.json();
 
   if (dados.base && !$('#pastaBase').value) $('#pastaBase').value = dados.base;
+  if (dados.base && !pastasBaseConhecidas.includes(dados.base)) {
+    pastasBaseConhecidas.push(dados.base);
+    desenharComboPastaBase();
+  }
 
   const aviso = $('#avisoRepos');
   alvo.replaceChildren();
@@ -1507,6 +1757,77 @@ async function carregarRepositorios(base) {
   }
 }
 
+desenharComboIdiomaPadrao();
+atualizarComboIdiomaPadrao();
+
+$('#comboIdiomaPadraoGatilho').onclick = () => {
+  if ($('#comboIdiomaPadraoLista').hidden) abrirComboIdiomaPadrao();
+  else fecharComboIdiomaPadrao();
+};
+
+$('#comboIdiomaPadraoGatilho').onkeydown = (e) => {
+  if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) {
+    e.preventDefault();
+    abrirComboIdiomaPadrao();
+  }
+};
+
+$('#comboIdiomaPadraoLista').onkeydown = (e) => {
+  const opcoes = [...$('#comboIdiomaPadraoLista').querySelectorAll('.combo__opcao')];
+  const atual = opcoes.indexOf(document.activeElement);
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    fecharComboIdiomaPadrao({ devolverFoco: true });
+  } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const passo = e.key === 'ArrowDown' ? 1 : -1;
+    opcoes[(atual + passo + opcoes.length) % opcoes.length]?.focus();
+  } else if ((e.key === 'Enter' || e.key === ' ') && atual >= 0) {
+    e.preventDefault();
+    opcoes[atual].click();
+  } else if (e.key === 'Tab') {
+    fecharComboIdiomaPadrao();
+  }
+};
+
+$('#comboPastaBaseGatilho').onclick = () => {
+  if ($('#comboPastaBaseLista').hidden) abrirComboPastaBase();
+  else fecharComboPastaBase();
+};
+$('#pastaBase').addEventListener('focus', abrirComboPastaBase);
+$('#pastaBase').addEventListener('input', desenharComboPastaBase);
+$('#pastaBase').addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') fecharComboPastaBase();
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    abrirComboPastaBase();
+    $('#comboPastaBaseLista').querySelector('.combo__opcao')?.focus();
+  }
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    carregarRepositorios($('#pastaBase').value.trim());
+    fecharComboPastaBase();
+  }
+});
+$('#comboPastaBaseLista').onkeydown = (e) => {
+  const opcoes = [...$('#comboPastaBaseLista').querySelectorAll('.combo__opcao')];
+  const atual = opcoes.indexOf(document.activeElement);
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    fecharComboPastaBase();
+    $('#pastaBase').focus();
+  } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const passo = e.key === 'ArrowDown' ? 1 : -1;
+    opcoes[(atual + passo + opcoes.length) % opcoes.length]?.focus();
+  } else if ((e.key === 'Enter' || e.key === ' ') && atual >= 0) {
+    e.preventDefault();
+    opcoes[atual].click();
+  } else if (e.key === 'Tab') {
+    fecharComboPastaBase();
+  }
+};
+
 $('#comboProjetoGatilho').onclick = () => {
   if ($('#comboProjetoLista').hidden) abrirCombo();
   else fecharCombo();
@@ -1543,6 +1864,8 @@ $('#comboProjetoLista').onkeydown = (e) => {
 
 document.addEventListener('click', (e) => {
   if (!$('#comboProjeto').contains(e.target)) fecharCombo();
+  if (!$('#comboIdiomaPadrao').contains(e.target)) fecharComboIdiomaPadrao();
+  if (!$('#comboPastaBase').contains(e.target)) fecharComboPastaBase();
 });
 
 $('#btnProcurar').onclick = () => carregarRepositorios($('#pastaBase').value.trim());

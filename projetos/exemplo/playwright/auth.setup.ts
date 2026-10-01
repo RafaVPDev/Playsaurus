@@ -10,8 +10,8 @@ const authFile = projetoAtivo().arquivoAuth;
 setup('authenticate', async ({ page }) => {
   const loginPage = new LoginPage(page);
   await loginPage.login(
-    process.env.PLAYSAURUS_TEST_USER_EMAIL || '',
-    process.env.PLAYSAURUS_TEST_USER_PASSWORD || ''
+    process.env.EXEMPLO_TEST_USER_EMAIL || '',
+    process.env.EXEMPLO_TEST_USER_PASSWORD || ''
   );
   mkdirSync(path.dirname(authFile), { recursive: true });
   await page.context().storageState({ path: authFile });

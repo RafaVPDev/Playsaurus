@@ -1,6 +1,6 @@
 # Playsaurus — documentação
 
-- **Publicada em:** http://127.0.0.1:4321/docs/
+- **Publicada em:** http://localhost:8080/docs/
 - **Repositório do produto:** `playsaurus`
 - **Destino:** `public/docs`
 - **Formato padrão:** standalone (um `index.html` + `help-index.json` + PDFs)
@@ -8,13 +8,13 @@
 ## Fluxo
 
 ```bash
-npm run i18n:init -- playsaurus        # cria scaffolds dos idiomas adicionais configurados
-npm run i18n:check -- playsaurus       # mostra traduções pendentes
-npm run screenshots -- playsaurus      # captura os idiomas configurados
-npm run auditoria -- playsaurus         # auditoria Playwright read-only
-npm run pdf -- playsaurus              # PDFs por idioma
-npm run build -- playsaurus            # gera interno + cliente a partir do mesmo modelo de páginas
-npm run publish -- playsaurus          # publica só o artefato final
+npm run i18n:init -- exemplo        # cria scaffolds dos idiomas adicionais configurados
+npm run i18n:check -- exemplo       # mostra traduções pendentes
+npm run screenshots -- exemplo      # captura os idiomas configurados
+npm run auditoria -- exemplo         # auditoria Playwright read-only
+npm run pdf -- exemplo              # PDFs por idioma
+npm run build -- exemplo            # gera interno + cliente a partir do mesmo modelo de páginas
+npm run publish -- exemplo          # publica só o artefato final
 ```
 
 O Playsaurus compila Markdown diretamente para o portal standalone. Não há
@@ -25,7 +25,7 @@ build HTML intermediário nem runtime de outro gerador no artefato publicado.
 O idioma escolhido na criação do projeto fica em `docs/` e é o único idioma
 habilitado inicialmente. Para disponibilizar traduções, adicione os locales
 pretendidos em `idiomas.disponiveis` no `projeto.json` e execute
-`npm run i18n:init -- playsaurus`.
+`npm run i18n:init -- exemplo`.
 
 As traduções ficam em
 `i18n/<locale>/`, espelhando a estrutura de `docs/`. Locales ainda marcados
@@ -49,8 +49,8 @@ A auditoria read-only usa `auditoria.json`, separado do `projeto.json`. O perfil
 adicione perfis com `envEmail`, `envPassword`, `rotas`, `rotasProibidas`,
 `menusVisiveis`, `menusOcultos` e, quando útil, `textosEsperados`.
 
-Para executar só uma role: `npm run auditoria -- playsaurus --perfil <id-do-perfil>`.
+Para executar só uma role: `npm run auditoria -- exemplo --perfil <id-do-perfil>`.
 
 O resumo é gravado em
-`projetos/playsaurus/output/auditoria/relatorio.md`. Screenshots e traces
-de falha ficam em `projetos/playsaurus/.playsaurus/auditoria/`.
+`projetos/exemplo/output/auditoria/relatorio.md`. Screenshots e traces
+de falha ficam em `projetos/exemplo/.playsaurus/auditoria/`.
