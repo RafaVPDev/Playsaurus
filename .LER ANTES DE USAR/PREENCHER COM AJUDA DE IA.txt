@@ -1,24 +1,68 @@
 # Preencher com ajuda de IA
 
-Os prompts abaixo são modelos. Dê sempre acesso ao código e aos documentos reais
-que a IA precisa analisar; não peça para inventar comportamento ausente.
+Os prompts abaixo são modelos. Dê sempre acesso ao código e aos documentos reais que a IA precisa analisar, não peça para inventar comportamento ausente.
 
 ## Prompt 1 — mapear o produto
 
-```text
-Analise o projeto antes de escrever documentação.
+Estou trabalhando na documentação deste projeto:
+
+Projeto analisado:
+C:\caminho-real-do-projeto
+
+Pasta de trabalho da documentação no Playsaurus:
+C:\caminho-do-Playsaurus\projetos\projeto-escolhido
+
+Use o código-fonte do projeto analisado como fonte de verdade.
+
+A documentação não deve ser criada nem alterada dentro do repositório do projeto analisado. Qualquer arquivo de documentação deve ser criado ou modificado exclusivamente na pasta de trabalho do Playsaurus.
+
+Antes de escrever documentação, faça uma análise completa do projeto para entender como ele realmente funciona.
 
 Quero um inventário factual de:
-- telas e rotas;
-- perfis/permissões;
-- fluxos principais;
-- integrações;
-- entidades e regras importantes;
-- erros e estados vazios relevantes.
 
-Não escreva a documentação final ainda. Aponte também o que não pôde ser
-confirmado pelo código.
-```
+- telas e rotas existentes;
+- áreas e módulos do sistema;
+- perfis de usuário;
+- papéis e permissões;
+- autenticação e acesso;
+- fluxos principais de uso;
+- ações disponíveis em cada fluxo;
+- integrações externas;
+- entidades e dados importantes;
+- regras de negócio;
+- validações relevantes;
+- estados possíveis das entidades;
+- mensagens de erro importantes;
+- estados vazios;
+- limitações ou comportamentos condicionais;
+- funcionalidades disponíveis apenas para determinados perfis;
+- pontos que provavelmente precisarão de screenshots;
+- áreas que parecem relevantes para Arquitetura, Usabilidade e Referência.
+
+Durante a análise:
+
+- confira rotas, páginas, componentes, APIs, serviços, modelos, permissões e configurações quando forem relevantes;
+- não deduza uma funcionalidade apenas pelo nome de um arquivo;
+- confirme o comportamento sempre que houver código suficiente para isso;
+- diferencie claramente comportamento confirmado de hipótese;
+- não invente funcionalidades, regras, permissões ou fluxos;
+- não use conhecimento genérico para preencher lacunas do projeto;
+- considere documentação já existente no Playsaurus apenas como contexto, nunca como prova de que o comportamento atual ainda é o mesmo;
+- se a implementação atual contradizer a documentação existente, sinalize a diferença;
+- se encontrar código incompleto, feature flag, funcionalidade desativada ou comportamento aparentemente em desenvolvimento, sinalize isso;
+- não altere código-fonte do produto.
+
+Organize o resultado de forma que ele possa servir de base para escrever depois as três áreas da documentação: Arquitetura, Usabilidade e Referência.
+
+Ao final, crie também uma seção chamada:
+
+## Não confirmado
+
+Liste nela tudo que parece existir ou ser importante, mas que não pôde ser confirmado com segurança pelo código disponível.
+
+Não escreva a documentação final ainda.
+Não crie nem modifique arquivos neste passo.
+O objetivo deste prompt é somente entender e mapear o produto antes da etapa de documentação.
 
 ## Prompt 2 — Arquitetura
 
@@ -53,7 +97,95 @@ Use publico/faq_admin apenas quando houver diferença real entre usuários comun
 administradores.
 ```
 
-## Prompt 5 — atualizar após uma mudança
+## Prompt 5 — gerar screenshots
+
+Continue trabalhando com o mesmo projeto analisado e com a mesma pasta de documentação no Playsaurus.
+
+Agora prepare as screenshots da documentação.
+
+Primeiro, analise todas as rotas, telas e fluxos reais do sistema e identifique tudo que precisa ser coberto por screenshots.
+
+Considere:
+- todas as rotas acessíveis do sistema;
+- telas públicas e autenticadas;
+- áreas disponíveis para perfis diferentes;
+- rotas dinâmicas;
+- telas que só aparecem depois de uma ação;
+- estados relevantes que realmente precisem aparecer na documentação.
+
+Depois, edite ou crie o script de screenshots dentro da pasta deste projeto no Playsaurus:
+
+projetos/<projeto-escolhido>/playwright/screenshots.spec.ts
+
+Se for necessário ajustar autenticação ou login, use também os arquivos já existentes nessa mesma pasta:
+
+projetos/<projeto-escolhido>/playwright/LoginPage.ts
+projetos/<projeto-escolhido>/playwright/auth.setup.ts
+
+Não crie outro sistema de screenshots e não altere o executor compartilhado do Playsaurus.
+
+O screenshots.spec.ts deve cobrir todas as telas identificadas, usando rotas e dados válidos.
+
+Para rotas dinâmicas, escolha registros válidos que permitam representar cada tela ou comportamento diferente.
+
+Antes de considerar o script pronto, confira se:
+- nenhuma rota relevante ficou de fora;
+- não existem capturas duplicadas sem necessidade;
+- cada captura abre a tela correta;
+- telas autenticadas usam a sessão correta;
+- telas públicas não aparecem autenticadas por engano;
+- os nomes dos arquivos são claros e estáveis;
+- o script não cria arquivos ou pastas extras;
+- as imagens serão salvas somente na estrutura de screenshots deste projeto.
+
+Quando terminar de preparar o script, pare e me avise. Usuário deve clicar no botão:
+
+Gerar screenshots
+
+do painel do Playsaurus.
+
+Depois que eu informar que a geração terminou, verifique as screenshots geradas e o resultado da execução.
+
+Confirme que:
+- todas as capturas previstas foram geradas;
+- nenhuma rota falhou;
+- nenhuma imagem mostra erro, login inesperado, tela vazia ou página incorreta;
+- não foram geradas imagens desnecessárias;
+- não foram criados arquivos ou artefatos extras.
+
+Se houver algum problema, corrija o script e usuário deve clicar novamente em Gerar screenshots.
+
+Este passo só termina quando todas as screenshots necessárias forem geradas corretamente e sem erros.
+
+
+## Prompt 6 — colocar as screenshots na documentação
+
+Agora revise as screenshots geradas e aplique-as na documentação existente.
+
+Antes de inserir cada imagem, abra ou analise a screenshot e confirme que ela realmente corresponde ao conteúdo daquela página.
+
+Não escolha screenshots apenas pelo nome do arquivo.
+
+Use imagens somente quando ajudarem a explicar uma tela, ação ou fluxo.
+
+Ao atualizar a documentação:
+- coloque cada screenshot perto do trecho que ela explica;
+- não coloque imagens em páginas erradas;
+- não repita a mesma imagem sem necessidade;
+- não adicione screenshots apenas para preencher espaço;
+- preserve o texto e a estrutura que já estiverem corretos;
+- use os caminhos das imagens já existentes dentro do projeto no Playsaurus;
+- não gere novas screenshots neste passo;
+- não altere o código-fonte do produto.
+
+No final, confira todas as imagens usadas e verifique se:
+- os caminhos estão corretos;
+- nenhuma referência está quebrada;
+- nenhuma screenshot foi associada ao assunto errado;
+- não há imagens desnecessárias na documentação.
+
+
+## Prompt 7 — atualizar após uma mudança
 
 ```text
 Compare a implementação atual com a documentação existente.
