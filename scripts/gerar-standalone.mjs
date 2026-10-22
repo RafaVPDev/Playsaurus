@@ -39,10 +39,20 @@ function copiarPdfs(projeto, destino, modo) {
   if (!fs.existsSync(origem)) return [];
 
   const tipo = modo === 'publico' ? 'cliente' : 'equipe';
-  const nomesEsperados = projeto.idiomas.disponiveis.map(
-    (idioma) => `documentacao-${tipo}.${idioma.locale}.pdf`,
-  );
-  const existentes = nomesEsperados.filter((nome) => fs.existsSync(path.join(origem, nome)));
+  const idiomas = projeto.idiomas.disponiveis || [];
+
+  // O exportador usa nome simples quando há um único idioma e acrescenta o
+  // locale somente quando existem vários. O standalone precisa seguir a mesma
+  // regra; caso contrário o PDF existe em static/pdf, mas nunca entra no build.
+  const nomesEsperados = idiomas.length <= 1
+    ? [
+        `documentacao-${tipo}.pdf`,
+        ...(idiomas[0] ? [`documentacao-${tipo}.${idiomas[0].locale}.pdf`] : []),
+      ]
+    : idiomas.map((idioma) => `documentacao-${tipo}.${idioma.locale}.pdf`);
+
+  const existentes = [...new Set(nomesEsperados)]
+    .filter((nome) => fs.existsSync(path.join(origem, nome)));
   if (!existentes.length) return [];
 
   const out = path.join(destino, 'pdf');
